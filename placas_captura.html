@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="cyber">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captura de Placas — Nayarit</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
+    --border: #1e3a5f; --accent: #00c8ff; --accent2: #0066cc;
+    --success: #00e676; --warning: #ffab00; --danger: #ff3d57;
+    --text: #e2e8f0; --text2: #94a3b8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh;
+    background-image: radial-gradient(ellipse at 20% 20%,rgba(0,100,200,0.08) 0%,transparent 50%),
+                      radial-gradient(ellipse at 80% 80%,rgba(0,200,255,0.05) 0%,transparent 50%);
+  }
+  header {
+    background:linear-gradient(135deg,#0d1b2a 0%,#1a2a4a 50%,#0d1b2a 100%);
+    border-bottom:2px solid var(--accent);
+    padding:0 2rem; display:flex; align-items:center; gap:1.5rem;
+    box-shadow:0 4px 30px rgba(0,200,255,0.15); position:relative; overflow:hidden;
+  }
+  header::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    animation:scanline 3s linear infinite;
+  }
+  @keyframes scanline { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+  .header-escudo {
+    width:70px; height:70px;
+    background:radial-gradient(circle,#1e3a6e 0%,#0d1b2a 70%);
+    border:2px solid var(--accent); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2rem; flex-shrink:0; box-shadow:0 0 20px rgba(0,200,255,0.3); margin:0.8rem 0;
+  }
+  .header-info h1 {
+    font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700;
+    color:var(--accent); letter-spacing:2px; text-transform:uppercase;
+  }
+  .header-info p { font-size:0.8rem; color:var(--text2); letter-spacing:1px; text-transform:uppercase; }
+  .header-clock { margin-left:auto; text-align:right; }
+  .clock-time { font-family:'Share Tech Mono',monospace; font-size:2rem; color:var(--accent); text-shadow:0 0 10px rgba(0,200,255,0.5); }
+  .clock-date { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--text2); }
+
+  /* STATUS FIREBASE */
+  .fb-status {
+    display:flex; align-items:center; gap:0.5rem;
+    padding:0.4rem 1rem; border-radius:20px; font-size:0.78rem;
+    font-family:'Rajdhani',sans-serif; letter-spacing:1px; font-weight:600;
+    border:1px solid; margin-left:1rem;
+  }
+  .fb-status.conectado { border-color:var(--success); color:var(--success); background:rgba(0,230,118,0.08); }
+  .fb-status.desconectado { border-color:var(--danger); color:var(--danger); background:rgba(255,61,87,0.08); }
+  .fb-status.conectando { border-color:var(--warning); color:var(--warning); background:rgba(255,171,0,0.08); }
+  .fb-dot { width:8px; height:8px; border-radius:50%; background:currentColor; }
+
+  .main-layout {
+    max-width:600px; margin:0 auto; padding:2rem 1.5rem;
+  }
+  .panel {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    margin-bottom:1.5rem;
+  }
+  .panel-header {
+    background:linear-gradient(90deg,var(--surface2),var(--surface));
+    padding:1rem 1.5rem; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  .panel-header h2 {
+    font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:600;
+    letter-spacing:1.5px; text-transform:uppercase; color:var(--accent);
+  }
+  .panel-icon {
+    width:32px; height:32px; background:rgba(0,200,255,0.1);
+    border:1px solid rgba(0,200,255,0.3); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:1rem;
+  }
+  .panel-body { padding:1.5rem; }
+  .form-group { margin-bottom:1.2rem; }
+  label {
+    display:block; font-size:0.75rem; font-weight:600;
+    letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); margin-bottom:0.5rem;
+  }
+  input, select {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:8px; padding:0.75rem 1rem; color:var(--text);
+    font-family:'Share Tech Mono',monospace; font-size:1rem; letter-spacing:2px;
+    transition:all 0.2s; outline:none;
+  }
+  input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,200,255,0.1); background:rgba(0,200,255,0.03); }
+  input.placa-input {
+    font-size:1.8rem; letter-spacing:6px; text-transform:uppercase;
+    text-align:center; font-weight:700; color:var(--accent); padding:1rem;
+  }
+  input.placa-input::placeholder { font-size:1rem; letter-spacing:2px; color:var(--border); }
+  select option { background:var(--surface); }
+
+  .subtipo-btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+  .subtipo-btn {
+    padding:0.9rem 1rem; background:var(--bg); border:2px solid var(--border);
+    border-radius:8px; color:var(--text2); font-family:'Rajdhani',sans-serif;
+    font-size:0.9rem; font-weight:600; letter-spacing:1px; cursor:pointer;
+    transition:all 0.2s; text-align:center; display:flex; flex-direction:column;
+    align-items:center; gap:0.3rem;
+  }
+  .subtipo-btn .sico { font-size:1.5rem; }
+  .subtipo-btn:hover { border-color:var(--warning); color:var(--text); background:rgba(255,171,0,0.05); }
+  .subtipo-btn.active { border-color:var(--warning); color:var(--warning); background:rgba(255,171,0,0.08); box-shadow:0 0 12px rgba(255,171,0,0.15); }
+  .subtipo-group { margin-top:0.8rem; animation:fadeSlideIn 0.25s ease; }
+  @keyframes fadeSlideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  .denuncia-input-group { margin-top:0.8rem; display:none; animation:fadeSlideIn 0.25s ease; }
+
+  .btn-registrar {
+    width:100%; padding:1rem;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));
+    border:none; border-radius:10px; color:#fff;
+    font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+    transition:all 0.2s; margin-top:0.5rem; position:relative; overflow:hidden;
+  }
+  .btn-registrar:hover { transform:translateY(-1px); box-shadow:0 8px 25px rgba(0,200,255,0.3); }
+  .btn-registrar:disabled { opacity:0.5; cursor:not-allowed; }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:1rem; text-align:center; position:relative; overflow:hidden;
+  }
+  .stat-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; }
+  .stat-card.blue::after { background:var(--accent); }
+  .stat-card.green::after { background:var(--success); }
+  .stat-card.yellow::after { background:var(--warning); }
+  .stat-num { font-family:'Share Tech Mono',monospace; font-size:2rem; font-weight:700; }
+  .stat-card.blue .stat-num { color:var(--accent); }
+  .stat-card.green .stat-num { color:var(--success); }
+  .stat-card.yellow .stat-num { color:var(--warning); }
+  .stat-label { font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text2); margin-top:0.3rem; }
+
+  /* TOAST */
+  .toast-container { position:fixed; bottom:2rem; right:2rem; display:flex; flex-direction:column; gap:0.8rem; z-index:9999; }
+  .toast {
+    background:var(--surface2); border-left:4px solid var(--success);
+    border-radius:8px; padding:0.9rem 1.2rem; font-size:0.9rem;
+    box-shadow:0 8px 30px rgba(0,0,0,0.5);
+    animation:slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+    min-width:280px; display:flex; align-items:center; gap:0.8rem;
+  }
+  .toast.error { border-left-color:var(--danger); }
+  @keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+  @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    width:420px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    overflow:hidden; animation:modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from{transform:scale(0.92) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .modal-head {
+    background:linear-gradient(135deg,#003366,#0055a5);
+    padding:1.2rem 1.5rem; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .modal-head h3 { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); }
+  .modal-body { padding:1.5rem 2rem 2rem; }
+
+  /* ÚLTIMOS REGISTROS */
+  .registro-reciente {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0.6rem 0.8rem; border-radius:6px; background:var(--bg);
+    border:1px solid var(--border); margin-bottom:0.5rem; font-size:0.85rem;
+  }
+  .registro-reciente:last-child { margin-bottom:0; }
+  .reg-placa { font-family:'Share Tech Mono',monospace; color:var(--accent); font-weight:700; letter-spacing:2px; }
+  .reg-folio { color:var(--text2); font-size:0.78rem; }
+  .reg-hora  { color:var(--text2); font-size:0.75rem; font-family:'Share Tech Mono',monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-escudo">🚗</div>
+  <div class="header-info">
+    <h1>CAPTURA DE BAJAS — REEMPLACAMIENTO</h1>
+    <p>GOBIERNO DEL ESTADO DE NAYARIT</p>
+  </div>
+  <div id="fbStatus" class="fb-status conectando">
+    <div class="fb-dot"></div>
+    <span id="fbStatusTxt">CONECTANDO...</span>
+  </div>
+  <div class="header-clock">
+    <div class="clock-time" id="clockTime">00:00:00</div>
+    <div class="clock-date" id="clockDate">—</div>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card blue">
+      <div class="stat-num" id="statTotal">—</div>
+      <div class="stat-label">Total Global</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num" id="statHoy">—</div>
+      <div class="stat-label">Hoy</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-num" id="statMisCapturas">0</div>
+      <div class="stat-label">Mis Capturas</div>
+    </div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon">📋</div>
+      <h2>Nueva Captura</h2>
+      <div id="cajaIndicador" style="margin-left:auto;background:rgba(0,200,255,0.15);border:1px solid var(--accent);border-radius:8px;padding:4px 14px;font-size:0.85rem;color:var(--accent);letter-spacing:1px;cursor:pointer" onclick="cambiarCaja()" title="Click para cambiar caja">
+        📦 <span id="cajaIndicadorTxt">—</span>
+      </div>
+    </div>
+    <div class="panel-body">
+
+      <div class="form-group">
+        <label>🔢 Número de Placa</label>
+        <input type="text" id="inputPlaca" class="placa-input" placeholder="AAA-000-A" maxlength="10" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>🚦 Paso 1 — Tipo de Vehículo</label>
+        <div class="subtipo-btn-grid">
+          <button class="subtipo-btn" id="sbVehiculo" onclick="setTipoVehiculo('vehiculo')">
+            <span class="sico">🚗</span><span>Vehículo</span>
+            <span style="font-size:0.7rem;opacity:0.7">2 placas</span>
+          </button>
+          <button class="subtipo-btn" id="sbMoto" onclick="setTipoVehiculo('moto')">
+            <span class="sico">🏍️</span><span>Motocicleta</span>
+            <span style="font-size:0.7rem;opacity:0.7">1 placa</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group subtipo-group" id="paso2Group" style="display:none">
+        <label>🪪 Paso 2 — Placas a Entregar</label>
+        <div id="placasOpcionesWrap"></div>
+      </div>
+
+      <div class="form-group subtipo-group" id="denunciaGroup" style="display:none">
+        <label>📋 Paso 3 — Número de Denuncia</label>
+        <input type="text" id="inputDenuncia" placeholder="Ej. DEN-2026-001" autocomplete="off"
+          style="font-family:'Exo 2',sans-serif;letter-spacing:1px;text-transform:uppercase;">
+        <div style="font-size:0.72rem;color:var(--text2);margin-top:0.4rem">
+          Folio/número de la denuncia por placa(s) extraviada(s)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>👤 Nombre del Propietario</label>
+        <input type="text" id="inputPropietario" placeholder="Nombre completo del propietario" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
+      </div>
+
+      <div class="form-group">
+        <label>🧑‍💼 Cajero</label>
+        <input type="text" id="inputCajero" placeholder="Nombre del cajero" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
+      </div>
+
+      <div class="form-group">
+        <label>💻 Capturista</label>
+        <input type="text" id="inputCapturista" placeholder="Nombre del capturista" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
+      </div>
+
+      <div class="form-group">
+        <label>📅 Fecha de Baja del Trámite</label>
+        <input type="date" id="inputFechaPago" style="font-family:'Share Tech Mono',monospace;letter-spacing:1px;color-scheme:dark;">
+      </div>
+
+      <button class="btn-registrar" onclick="registrar()" id="btnRegistrar">
+        ✅ &nbsp; Registrar Placa
+      </button>
+    </div>
+  </div>
+
+  <!-- ÚLTIMOS REGISTROS DE ESTA SESIÓN -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon">📝</div>
+      <h2>Mis Últimas Capturas (Sesión)</h2>
+    </div>
+    <div class="panel-body" id="ultimosList">
+      <div style="color:var(--text2);text-align:center;padding:1rem;font-size:0.85rem">Sin capturas en esta sesión</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL CAJA -->
+<div class="modal-overlay open" id="cajaModal" style="z-index:9999">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📦 Número de Caja</h3>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);margin-bottom:1.2rem;font-size:0.92rem;letter-spacing:0.5px">
+        Ingrese el número de caja con la que va a trabajar en esta sesión.
+      </p>
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label>🔢 Número de Caja</label>
+        <input type="text" id="inputCajaModal" class="placa-input" placeholder="Ej. CAJA-01" maxlength="20"
+               autocomplete="off" style="font-size:1.3rem;text-align:center;letter-spacing:3px"
+               onkeydown="if(event.key==='Enter') confirmarCaja()">
+      </div>
+      <button class="btn-registrar" onclick="confirmarCaja()">✅ CONFIRMAR CAJA</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, where, Timestamp }
+    from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvghDr_PRqTGvZgLronJNhKfCJMdUqGQ4",
+    authDomain: "placas-nayarit.firebaseapp.com",
+    projectId: "placas-nayarit",
+    storageBucket: "placas-nayarit.firebasestorage.app",
+    messagingSenderId: "324501509739",
+    appId: "1:324501509739:web:8a8c8a60c180dca0bd832e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const col = collection(db, 'placas');
+
+  // ─── ESTADO ───
+  let allDocs = [];
+  let misCapturas = 0;
+  let cajaActiva = localStorage.getItem('placas_caja_activa') || '';
+  let tipoVehiculo = null, placaOpcion = null, cantidad = 0;
+
+  // ─── STATUS FIREBASE ───
+  function setStatus(s) {
+    const el = document.getElementById('fbStatus');
+    const tx = document.getElementById('fbStatusTxt');
+    el.className = 'fb-status ' + s;
+    tx.textContent = s === 'conectado' ? 'EN LÍNEA' : s === 'desconectado' ? 'SIN CONEXIÓN' : 'CONECTANDO...';
+  }
+
+  // ─── ESCUCHAR CAMBIOS EN TIEMPO REAL ───
+  const q = query(col, orderBy('timestamp', 'desc'));
+  onSnapshot(q, (snap) => {
+    allDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+    setStatus('conectado');
+    updateStats();
+  }, (err) => {
+    setStatus('desconectado');
+    console.error(err);
+  });
+
+  // ─── STATS ───
+  function updateStats() {
+    const hoy = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'2-digit', year:'numeric' });
+    document.getElementById('statTotal').textContent = allDocs.length;
+    document.getElementById('statHoy').textContent   = allDocs.filter(r => r.fechaCaptura === hoy).length;
+    document.getElementById('statMisCapturas').textContent = misCapturas;
+  }
+
+  // ─── RELOJ ───
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clockTime').textContent = `${h}:${m}:${s}`;
+    const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    document.getElementById('clockDate').textContent =
+      `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // ─── CAJA ───
+  window.confirmarCaja = function() {
+    const val = document.getElementById('inputCajaModal').value.trim().toUpperCase();
+    if (!val) { document.getElementById('inputCajaModal').style.border='2px solid var(--danger)'; return; }
+    cajaActiva = val;
+    localStorage.setItem('placas_caja_activa', cajaActiva);
+    document.getElementById('cajaModal').classList.remove('open');
+    document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
+    document.getElementById('inputPlaca').focus();
+  };
+  window.cambiarCaja = function() {
+    document.getElementById('inputCajaModal').value = cajaActiva;
+    document.getElementById('cajaModal').classList.add('open');
+    setTimeout(() => document.getElementById('inputCajaModal').focus(), 100);
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (cajaActiva) {
+      document.getElementById('cajaModal').classList.remove('open');
+      document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
+      document.getElementById('inputCajaModal').value = cajaActiva;
+    }
+    const cajeroG = localStorage.getItem('placas_cajero_activo') || '';
+    const capG    = localStorage.getItem('placas_capturista_activo') || '';
+    if (cajeroG) document.getElementById('inputCajero').value = cajeroG;
+    if (capG)    document.getElementById('inputCapturista').value = capG;
+  });
+
+  // ─── TIPO VEHÍCULO ───
+  window.setTipoVehiculo = function(t) {
+    tipoVehiculo = t; placaOpcion = null;
+    document.getElementById('sbVehiculo').classList.toggle('active', t==='vehiculo');
+    document.getElementById('sbMoto').classList.toggle('active', t==='moto');
+    const wrap = document.getElementById('placasOpcionesWrap');
+    if (t === 'vehiculo') {
+      wrap.innerHTML = `
+        <div class="subtipo-btn-grid" style="grid-template-columns:1fr 1fr">
+          <button class="subtipo-btn" id="po_2p" onclick="setPlacaOpcion('2placas')" style="grid-column:span 2">
+            <span class="sico">🪪🪪</span><span>2 Placas Completas</span>
+            <span style="font-size:0.7rem;opacity:0.7">entrega normal</span>
+          </button>
+          <button class="subtipo-btn" id="po_1p1d" onclick="setPlacaOpcion('1placa_den1')">
+            <span class="sico">🪪📋</span><span>1 Placa + Denuncia</span>
+            <span style="font-size:0.7rem;opacity:0.7">1 extraviada</span>
+          </button>
+          <button class="subtipo-btn" id="po_0p2d" onclick="setPlacaOpcion('0placas_den')">
+            <span class="sico">📋📋</span><span>Solo Denuncia</span>
+            <span style="font-size:0.7rem;opacity:0.7">2 extraviadas</span>
+          </button>
+        </div>`;
+    } else {
+      wrap.innerHTML = `
+        <div class="subtipo-btn-grid">
+          <button class="subtipo-btn" id="po_1p" onclick="setPlacaOpcion('1placa')">
+            <span class="sico">🪪</span><span>1 Placa</span>
+            <span style="font-size:0.7rem;opacity:0.7">entrega normal</span>
+          </button>
+          <button class="subtipo-btn" id="po_0pd" onclick="setPlacaOpcion('0placas_den')">
+            <span class="sico">📋</span><span>Denuncia</span>
+            <span style="font-size:0.7rem;opacity:0.7">placa extraviada</span>
+          </button>
+        </div>`;
+    }
+    document.getElementById('paso2Group').style.display = 'block';
+    document.getElementById('denunciaGroup').style.display = 'none';
+    document.getElementById('inputDenuncia').value = '';
+    cantidad = t === 'moto' ? 1 : 2;
+  };
+
+  window.setPlacaOpcion = function(op) {
+    placaOpcion = op;
+    document.querySelectorAll('#placasOpcionesWrap .subtipo-btn').forEach(b => b.classList.remove('active'));
+    const ids = { '2placas':'po_2p','1placa_den1':'po_1p1d','0placas_den':'po_0p2d','1placa':'po_1p' };
+    const btnId = (op==='0placas_den' && tipoVehiculo==='moto') ? 'po_0pd' : (ids[op]||null);
+    if (btnId) { const el=document.getElementById(btnId); if(el) el.classList.add('active'); }
+    const needsDen = op.includes('den');
+    document.getElementById('denunciaGroup').style.display = needsDen ? 'block' : 'none';
+    if (!needsDen) document.getElementById('inputDenuncia').value = '';
+    if (op==='2placas') cantidad=2;
+    else if (op==='1placa') cantidad=1;
+    else if (op==='1placa_den1') cantidad=1;
+    else if (op==='0placas_den') cantidad=0;
+  };
+
+  function resetTramite() {
+    tipoVehiculo=null; placaOpcion=null; cantidad=0;
+    ['sbVehiculo','sbMoto'].forEach(id => document.getElementById(id).classList.remove('active'));
+    document.getElementById('paso2Group').style.display='none';
+    document.getElementById('denunciaGroup').style.display='none';
+    document.getElementById('placasOpcionesWrap').innerHTML='';
+    document.getElementById('inputDenuncia').value='';
+  }
+
+  // ─── FOLIO ───
+  async function genFolio() {
+    const max = allDocs.length > 0 ? Math.max(...allDocs.map(r => r.folioNum || 0)) : 0;
+    return { num: max+1, str: 'NAY-' + String(max+1).padStart(5,'0') };
+  }
+
+  // ─── REGISTRAR ───
+  window.registrar = async function() {
+    const placa       = document.getElementById('inputPlaca').value.trim().toUpperCase();
+    const propietario = document.getElementById('inputPropietario').value.trim();
+    const cajero      = document.getElementById('inputCajero').value.trim();
+    const capturista  = document.getElementById('inputCapturista').value.trim();
+    const fechaPago   = document.getElementById('inputFechaPago').value;
+
+    if (!placa)        { toast('⚠️ Ingrese el número de placa', true); return; }
+    if (!tipoVehiculo) { toast('⚠️ Seleccione el tipo de vehículo', true); return; }
+    if (!placaOpcion)  { toast('⚠️ Seleccione la opción de placas', true); return; }
+    if (!propietario)  { toast('⚠️ Ingrese el nombre del propietario', true); return; }
+    if (!cajero)       { toast('⚠️ Ingrese el nombre del cajero', true); return; }
+    if (!capturista)   { toast('⚠️ Ingrese el nombre del capturista', true); return; }
+    if (!fechaPago)    { toast('⚠️ Seleccione la fecha de baja', true); return; }
+
+    let denuncia = '';
+    if (placaOpcion && placaOpcion.includes('den')) {
+      denuncia = document.getElementById('inputDenuncia').value.trim().toUpperCase();
+      if (!denuncia) { toast('⚠️ Ingrese el número de denuncia', true); return; }
+    }
+
+    // Verificar duplicado placa
+    if (allDocs.some(r => r.placa === placa)) {
+      toast(`⛔ La placa ${placa} ya fue registrada. No es posible duplicar.`, true);
+      document.getElementById('inputPlaca').focus(); return;
+    }
+    // Verificar duplicado denuncia
+    if (denuncia && allDocs.some(r => r.denuncia === denuncia)) {
+      toast(`⛔ La denuncia ${denuncia} ya fue registrada. No es posible duplicar.`, true);
+      document.getElementById('inputDenuncia').focus(); return;
+    }
+
+    const btn = document.getElementById('btnRegistrar');
+    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+
+    try {
+      const now = new Date();
+      const [fy,fm,fd] = fechaPago.split('-');
+      const fechaFmt = `${fd}/${fm}/${fy}`;
+      const folio = await genFolio();
+
+      const registro = {
+        folioNum: folio.num, folio: folio.str,
+        caja: cajaActiva, placa, cantidad, tipoVehiculo, placaOpcion,
+        subtipo: tipoVehiculo, denuncia, propietario, cajero, capturista,
+        fecha: fechaFmt,
+        hora: now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+        fechaCaptura: now.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}),
+        fechaISO: new Date(fechaPago).toISOString(),
+        timestamp: new Date(fechaPago).getTime(),
+        createdAt: Timestamp.now()
+      };
+
+      await addDoc(col, registro);
+
+      localStorage.setItem('placas_cajero_activo', cajero);
+      localStorage.setItem('placas_capturista_activo', capturista);
+
+      misCapturas++;
+      agregarUltimo({ placa, folio: folio.str, hora: registro.hora });
+
+      document.getElementById('inputPlaca').value = '';
+      document.getElementById('inputPropietario').value = '';
+      document.getElementById('inputFechaPago').value = '';
+      resetTramite();
+      toast(`✅ Placa ${placa} registrada — Folio ${folio.str}`);
+      document.getElementById('inputPlaca').focus();
+
+    } catch(e) {
+      toast('❌ Error al guardar. Verifique conexión.', true);
+      console.error(e);
+    } finally {
+      btn.disabled = false; btn.textContent = '✅  Registrar Placa';
+    }
+  };
+
+  // ─── ÚLTIMAS CAPTURAS (sesión) ───
+  function agregarUltimo(r) {
+    const list = document.getElementById('ultimosList');
+    const div = document.createElement('div');
+    div.className = 'registro-reciente';
+    div.innerHTML = `
+      <span class="reg-placa">${r.placa}</span>
+      <span class="reg-folio">${r.folio}</span>
+      <span class="reg-hora">${r.hora}</span>`;
+    if (list.children.length === 1 && list.children[0].tagName !== 'DIV'.split('')[0]) {
+      list.innerHTML = '';
+    }
+    list.prepend(div);
+    // Máximo 10 visibles
+    while (list.children.length > 10) list.removeChild(list.lastChild);
+  }
+
+  // ─── TOAST ───
+  window.toast = function(msg, error=false) {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast' + (error?' error':'');
+    t.textContent = msg;
+    c.appendChild(t);
+    const dur = error ? 6000 : 3200;
+    setTimeout(() => t.remove(), dur + 300);
+  };
+
+  // ENTER para registrar
+  document.addEventListener('keydown', e => { if(e.key==='Enter') window.registrar(); });
+</script>
+</body>
+</html>
