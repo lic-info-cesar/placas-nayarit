@@ -1314,9 +1314,10 @@
     try {
       const snap = await getDocs(query(col,
         where('capturista','==',capturistaActivo),
-        where('caja','==',numCaja),
-        orderBy('folioNum','asc')));
-      docsViendo = snap.docs.map(d=>({docId:d.id,...d.data()}));
+        where('caja','==',numCaja)));
+      // Ordenar por folioNum en el cliente (evita índice compuesto en Firebase)
+      docsViendo = snap.docs.map(d=>({docId:d.id,...d.data()}))
+        .sort((a,b) => (a.folioNum||0) - (b.folioNum||0));
       renderTablaVer();
     } catch(e) {
       document.getElementById('verCajaBody').innerHTML = '<tr><td colspan="11" style="color:var(--danger);text-align:center;padding:2rem;">❌ Error</td></tr>';
