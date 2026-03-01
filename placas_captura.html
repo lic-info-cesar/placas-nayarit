@@ -1042,7 +1042,8 @@
         createdAt: Timestamp.now()
       };
 
-      await addDoc(col, registro);
+      const docRef = await addDoc(col, registro);
+      registro.docId = docRef.id; // guardar docId para editar/borrar
 
       localStorage.setItem('placas_cajero_activo', cajeroActivo);
       sessionStorage.setItem('placas_cajero_sesion', cajeroActivo);
@@ -1271,17 +1272,16 @@
     btn.disabled = true;
 
     try {
-      // Buscar registros de esta caja que pertenezcan al capturista activo
-      const snap = await getDocs(query(col,
-        where('caja',       '==', numCaja),
-        where('capturista', '==', capturistaActivo)
-      ));
+      // Consultar por caja y validar capturista en cliente
+      const snap = await getDocs(query(col, where('caja','==',numCaja)));
+      const deCajero = snap.docs.filter(d => d.data().capturista === capturistaActivo);
+      // Reemplazar snap.empty por verificación del filtro
+      snap._filtrados = deCajero;
 
       btn.textContent = '📂 ABRIR CAJA';
       btn.disabled = false;
 
-      if (snap.empty) {
-        // No existe o pertenece a otro capturista
+      if (deCajero.length === 0) {
         errEl.textContent = `❌ LA CAJA "${numCaja}" NO EXISTE O NO FUE CAPTURADA POR ${capturistaActivo}`;
         errEl.style.display = 'block';
         return;
@@ -1312,15 +1312,25 @@
     document.getElementById('modalVerCaja').classList.add('open');
     cajaViendo = numCaja;
     try {
-      const snap = await getDocs(query(col,
-        where('capturista','==',capturistaActivo),
-        where('caja','==',numCaja)));
-      // Ordenar por folioNum en el cliente (evita índice compuesto en Firebase)
-      docsViendo = snap.docs.map(d=>({docId:d.id,...d.data()}))
+      // Consultar solo por caja y filtrar capturista en cliente
+      // (evita necesidad de índice compuesto en Firebase)
+      const snap = await getDocs(query(col, where('caja','==',numCaja)));
+      docsViendo = snap.docs
+        .map(d=>({docId:d.id,...d.data()}))
+        .filter(r => r.capturista === capturistaActivo)
         .sort((a,b) => (a.folioNum||0) - (b.folioNum||0));
+
+      if (docsViendo.length === 0) {
+        document.getElementById('verCajaBody').innerHTML =
+          '<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text2);">Sin registros para esta caja</td></tr>';
+        document.getElementById('verCajaInfo').textContent = `Capturista: ${capturistaActivo} | 0 registros`;
+        return;
+      }
       renderTablaVer();
     } catch(e) {
-      document.getElementById('verCajaBody').innerHTML = '<tr><td colspan="11" style="color:var(--danger);text-align:center;padding:2rem;">❌ Error</td></tr>';
+      document.getElementById('verCajaBody').innerHTML =
+        `<tr><td colspan="11" style="color:var(--danger);text-align:center;padding:2rem;">❌ Error: ${e.message}</td></tr>`;
+      console.error('verCaja error:', e);
     }
   };
 
