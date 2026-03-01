@@ -651,21 +651,26 @@
 <!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- MODAL: LISTA DE CAJAS -->
+<!-- MODAL: ABRIR CAJA POR NÚMERO -->
 <div class="modal-overlay" id="modalCajas">
-  <div class="modal-xl">
+  <div class="modal" style="width:420px;">
     <div class="modal-head">
-      <h3>📂 Mis Cajas Capturadas</h3>
-      <button class="btn-cerrar" onclick="document.getElementById('modalCajas').classList.remove('open')">✕ CERRAR</button>
+      <h3>📂 Abrir Caja</h3>
+      <button class="btn-cerrar" onclick="document.getElementById('modalCajas').classList.remove('open')">✕</button>
     </div>
-    <div class="modal-body">
-      <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem;letter-spacing:0.5px">
-        Solo se muestran cajas capturadas con tu usuario. Haz clic en una caja para ver, editar o imprimir sus registros.
+    <div class="modal-body" style="padding:1.5rem 2rem 2rem;">
+      <p style="color:var(--text2);font-size:0.85rem;margin-bottom:1.2rem;letter-spacing:0.5px;line-height:1.5;">
+        Ingresa el número de caja. Solo puedes acceder a cajas capturadas por <strong style="color:var(--accent)" id="modalCajasCapturista">—</strong>.
       </p>
-      <div id="listaCajas" style="min-height:100px;"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn-cerrar" onclick="document.getElementById('modalCajas').classList.remove('open')">CERRAR</button>
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label>📦 Número de Caja</label>
+        <input type="text" id="inputAbrirCaja" class="placa-input"
+          placeholder="EJ. CAJA-01" maxlength="20" autocomplete="off"
+          style="font-size:1.3rem;text-align:center;letter-spacing:3px;text-transform:uppercase;"
+          onkeydown="if(event.key==='Enter') confirmarAbrirCaja()">
+      </div>
+      <div id="abrirCajaError" style="display:none;color:var(--danger);font-size:0.85rem;margin-bottom:1rem;padding:0.6rem 1rem;background:rgba(255,61,87,0.1);border:1px solid var(--danger);border-radius:8px;"></div>
+      <button class="btn-registrar" onclick="confirmarAbrirCaja()">📂 ABRIR CAJA</button>
     </div>
   </div>
 </div>
@@ -1239,39 +1244,58 @@
     document.getElementById('inputPlaca').focus();
   };
 
-  // ─── ABRIR MODAL CAJAS DEL CAPTURISTA ───
-  window.abrirModalCajas = async function() {
-    const lista = document.getElementById('listaCajas');
-    lista.innerHTML = '<div style="color:var(--text2);text-align:center;padding:2rem;">⏳ Cargando cajas...</div>';
+  // ─── ABRIR MODAL CAJAS ───
+  window.abrirModalCajas = function() {
+    document.getElementById('inputAbrirCaja').value = '';
+    document.getElementById('abrirCajaError').style.display = 'none';
+    document.getElementById('modalCajasCapturista').textContent = capturistaActivo || '—';
     document.getElementById('modalCajas').classList.add('open');
+    setTimeout(() => document.getElementById('inputAbrirCaja').focus(), 150);
+  };
+
+  // ─── CONFIRMAR NÚMERO DE CAJA Y VALIDAR ───
+  window.confirmarAbrirCaja = async function() {
+    const numCaja = document.getElementById('inputAbrirCaja').value.trim().toUpperCase();
+    const errEl   = document.getElementById('abrirCajaError');
+
+    if (!numCaja) {
+      errEl.textContent = '⚠️ INGRESA EL NÚMERO DE CAJA';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Mostrar cargando
+    errEl.style.display = 'none';
+    const btn = document.querySelector('#modalCajas .btn-registrar');
+    btn.textContent = '⏳ VERIFICANDO...';
+    btn.disabled = true;
+
     try {
-      // Obtener todos los docs del capturista activo
-      const snap = await getDocs(query(col, where('capturista','==', capturistaActivo), orderBy('createdAt','desc')));
-      const docs = snap.docs.map(d => ({docId:d.id,...d.data()}));
-      // Agrupar por caja
-      const cajas = {};
-      docs.forEach(d => {
-        if (!cajas[d.caja]) cajas[d.caja] = [];
-        cajas[d.caja].push(d);
-      });
-      if (Object.keys(cajas).length === 0) {
-        lista.innerHTML = '<div style="color:var(--text2);text-align:center;padding:2rem;">Sin cajas registradas</div>';
+      // Buscar registros de esta caja que pertenezcan al capturista activo
+      const snap = await getDocs(query(col,
+        where('caja',       '==', numCaja),
+        where('capturista', '==', capturistaActivo)
+      ));
+
+      btn.textContent = '📂 ABRIR CAJA';
+      btn.disabled = false;
+
+      if (snap.empty) {
+        // No existe o pertenece a otro capturista
+        errEl.textContent = `❌ LA CAJA "${numCaja}" NO EXISTE O NO FUE CAPTURADA POR ${capturistaActivo}`;
+        errEl.style.display = 'block';
         return;
       }
-      lista.innerHTML = '';
-      Object.entries(cajas).forEach(([caja, regs]) => {
-        const fechas = [...new Set(regs.map(r=>r.fechaCaptura))].join(', ');
-        const div = document.createElement('div');
-        div.className = 'caja-item';
-        div.innerHTML = `
-          <div class="caja-item-num">📦 ${caja}</div>
-          <div class="caja-item-info"><strong>${regs.length} registros</strong> — Fecha(s): ${fechas}</div>
-          <span class="caja-item-count">${regs.length}</span>
-          <button class="btn-edit" onclick="verCaja('${caja}')">📋 VER / EDITAR</button>`;
-        lista.appendChild(div);
-      });
+
+      // Existe y pertenece al capturista — abrir
+      document.getElementById('modalCajas').classList.remove('open');
+      verCaja(numCaja);
+
     } catch(e) {
-      lista.innerHTML = '<div style="color:var(--danger);text-align:center;padding:2rem;">❌ Error al cargar cajas</div>';
+      btn.textContent = '📂 ABRIR CAJA';
+      btn.disabled = false;
+      errEl.textContent = '❌ ERROR DE CONEXIÓN — VERIFICA TU RED';
+      errEl.style.display = 'block';
       console.error(e);
     }
   };
