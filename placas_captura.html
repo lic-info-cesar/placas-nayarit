@@ -2,7 +2,7 @@
 <html lang="es" data-theme="cyber">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1440">
 <title>Captura de Placas — Nayarit</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -47,7 +47,6 @@
   .clock-time { font-family:'Share Tech Mono',monospace; font-size:2rem; color:var(--accent); text-shadow:0 0 10px rgba(0,200,255,0.5); }
   .clock-date { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--text2); }
 
-  /* STATUS FIREBASE */
   .fb-status {
     display:flex; align-items:center; gap:0.5rem;
     padding:0.4rem 1rem; border-radius:20px; font-size:0.78rem;
@@ -60,8 +59,50 @@
   .fb-dot { width:8px; height:8px; border-radius:50%; background:currentColor; }
 
   .main-layout {
-    max-width:600px; margin:0 auto; padding:2rem 1.5rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
+  .col-izq { display:contents; }
+  .col-der  { display:contents; }
+
+  /* Formulario horizontal en una sola fila */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 180px 200px 200px 1fr 1fr auto auto;
+    gap: 0.8rem;
+    align-items: end;
+  }
+  .form-grid .form-group { margin-bottom: 0; }
+  .form-grid .form-group label { font-size: 0.68rem; }
+  .form-grid input, .form-grid select {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.88rem;
+    letter-spacing: 1px;
+  }
+  .form-grid input.placa-input {
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    padding: 0.55rem 0.7rem;
+    text-align: center;
+  }
+  /* Sección tipo vehículo y opciones placas en grid compacto */
+  .tipo-opciones-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0;
+  }
+  .subtipo-btn {
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.78rem !important;
+    gap: 0.1rem !important;
+  }
+  .subtipo-btn .sico { font-size: 1.1rem !important; }
+  .panel-body { padding: 0.9rem 1.2rem; }
+  .panel-header { padding: 0.7rem 1.2rem; }
   .panel {
     background:var(--surface); border:1px solid var(--border);
     border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4);
@@ -91,7 +132,7 @@
     width:100%; background:var(--bg); border:1px solid var(--border);
     border-radius:8px; padding:0.75rem 1rem; color:var(--text);
     font-family:'Share Tech Mono',monospace; font-size:1rem; letter-spacing:2px;
-    transition:all 0.2s; outline:none;
+    transition:all 0.2s; outline:none; text-transform:uppercase;
   }
   input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,200,255,0.1); background:rgba(0,200,255,0.03); }
   input.placa-input {
@@ -127,8 +168,17 @@
   .btn-registrar:hover { transform:translateY(-1px); box-shadow:0 8px 25px rgba(0,200,255,0.3); }
   .btn-registrar:disabled { opacity:0.5; cursor:not-allowed; }
 
-  /* STATS */
-  .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+  .btn-secondary {
+    width:100%; padding:0.85rem;
+    background:transparent; border:2px solid var(--border);
+    border-radius:10px; color:var(--text2);
+    font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+    transition:all 0.2s; margin-top:0.5rem;
+  }
+  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+  .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem; }
   .stat-card {
     background:var(--surface); border:1px solid var(--border);
     border-radius:10px; padding:1rem; text-align:center; position:relative; overflow:hidden;
@@ -143,7 +193,6 @@
   .stat-card.yellow .stat-num { color:var(--warning); }
   .stat-label { font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text2); margin-top:0.3rem; }
 
-  /* TOAST */
   .toast-container { position:fixed; bottom:2rem; right:2rem; display:flex; flex-direction:column; gap:0.8rem; z-index:9999; }
   .toast {
     background:var(--surface2); border-left:4px solid var(--success);
@@ -156,12 +205,11 @@
   @keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
   @keyframes fadeOut { from{opacity:1} to{opacity:0} }
 
-  /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
   .modal-overlay.open { display:flex; }
   .modal {
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
-    width:420px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    width:460px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.6);
     overflow:hidden; animation:modalIn 0.25s ease;
   }
   @keyframes modalIn { from{transform:scale(0.92) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
@@ -173,16 +221,265 @@
   .modal-head h3 { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); }
   .modal-body { padding:1.5rem 2rem 2rem; }
 
-  /* ÚLTIMOS REGISTROS */
-  .registro-reciente {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:0.6rem 0.8rem; border-radius:6px; background:var(--bg);
-    border:1px solid var(--border); margin-bottom:0.5rem; font-size:0.85rem;
+  /* ── TABLA EXCEL DE CAJA ── */
+  .tabla-caja-wrap {
+    overflow:auto; border-radius:10px; border:1px solid var(--border);
+    max-height: none;
   }
-  .registro-reciente:last-child { margin-bottom:0; }
-  .reg-placa { font-family:'Share Tech Mono',monospace; color:var(--accent); font-weight:700; letter-spacing:2px; }
-  .reg-folio { color:var(--text2); font-size:0.78rem; }
-  .reg-hora  { color:var(--text2); font-size:0.75rem; font-family:'Share Tech Mono',monospace; }
+  .tabla-caja {
+    width:100%; border-collapse:collapse; font-size:0.82rem;
+    font-family:'Share Tech Mono',monospace;
+  }
+  .tabla-caja thead tr {
+    background:linear-gradient(90deg,#003366,#0066cc);
+    color:var(--accent); text-transform:uppercase; letter-spacing:1px;
+  }
+  .tabla-caja th {
+    padding:0.7rem 0.8rem; text-align:left; font-size:0.72rem;
+    border-right:1px solid rgba(0,200,255,0.2); white-space:nowrap;
+  }
+  .tabla-caja th:last-child { border-right:none; }
+  .tabla-caja tbody tr {
+    border-bottom:1px solid var(--border); transition:background 0.15s;
+  }
+  .tabla-caja tbody tr:nth-child(even) { background:rgba(0,200,255,0.03); }
+  .tabla-caja tbody tr:hover { background:rgba(0,200,255,0.07); }
+  .tabla-caja td {
+    padding:0.6rem 0.8rem; border-right:1px solid var(--border);
+    vertical-align:middle; white-space:nowrap;
+  }
+  .tabla-caja td:last-child { border-right:none; }
+  .td-placa { color:var(--accent); font-weight:700; letter-spacing:3px; }
+  .td-folio { color:var(--text2); font-size:0.75rem; }
+  .td-tipo  { color:var(--warning); }
+  .td-num   { color:var(--text2); text-align:center; }
+  .td-prop  { color:var(--text); font-family:'Exo 2',sans-serif; letter-spacing:0; }
+  .td-hora  { color:var(--text2); font-size:0.75rem; }
+  .td-den   { color:var(--danger); font-size:0.75rem; }
+
+  .acciones-caja {
+    display:flex; gap:0.8rem; margin-top:0.8rem; flex-wrap:wrap;
+  }
+  .btn-accion {
+    flex:1; min-width:120px; padding:0.65rem 1rem;
+    border:none; border-radius:10px; font-family:'Rajdhani',sans-serif;
+    font-size:1rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+    cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:0.5rem;
+  }
+  .btn-guardar { background:linear-gradient(135deg,#006633,#00e676); color:#000; }
+  .btn-guardar:hover { box-shadow:0 6px 20px rgba(0,230,118,0.35); transform:translateY(-1px); }
+  .btn-imprimir { background:linear-gradient(135deg,#003399,#00c8ff); color:#fff; }
+  .btn-imprimir:hover { box-shadow:0 6px 20px rgba(0,200,255,0.35); transform:translateY(-1px); }
+  .btn-nueva { background:linear-gradient(135deg,#660033,#ff3d57); color:#fff; }
+  .btn-nueva:hover { box-shadow:0 6px 20px rgba(255,61,87,0.35); transform:translateY(-1px); }
+
+  .info-caja-header {
+    display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:0.6rem;
+    padding:0.5rem 0.8rem; background:rgba(0,200,255,0.05);
+    border:1px solid rgba(0,200,255,0.2); border-radius:6px; align-items:center;
+  }
+  .info-caja-item { font-size:0.78rem; color:var(--text2); }
+  .info-caja-item strong { color:var(--accent); font-family:'Share Tech Mono',monospace; }
+
+  /* PRINT */
+  @page {
+    size: letter portrait;
+    margin: 8mm 10mm 8mm 10mm;
+  }
+
+  @media print {
+    /* Ocultar todo excepto la tabla */
+    header, .stats-row, .col-izq, .modal-overlay, .toast-container,
+    .acciones-caja, .panel-header, .info-caja-header,
+    .badge-count { display:none !important; }
+
+    /* Reset TOTAL — anular tema oscuro */
+    * { -webkit-print-color-adjust: economy !important; print-color-adjust: economy !important; }
+    html, body, div, table, thead, tbody, tr, th, td, span, p, h2 {
+      background: #fff !important;
+      color: #000 !important;
+      border-color: #ccc !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    html, body { margin:0; padding:0; }
+    .main-layout { display:block !important; padding:0 !important; }
+    .col-der { display:block !important; }
+    #panelTabla {
+      display:block !important; border:none !important; box-shadow:none !important;
+      margin:0 !important; padding:0 !important; height:auto !important;
+    }
+    .panel-body { padding:0 !important; }
+    .tabla-caja-wrap { border:none !important; max-height:none !important; overflow:visible !important; }
+
+    /* Encabezado de impresión */
+    .print-header { display:block !important; margin-bottom:4mm; }
+
+    /* Tabla compacta para 60 registros en hoja carta vertical */
+    /* Hoja carta: 279mm - 16mm márgenes = 263mm útiles */
+    /* Encabezado ~18mm + thead ~6mm = ~24mm → 239mm para filas */
+    /* 239mm / 60 filas = ~4mm por fila → font-size 7pt */
+    .tabla-caja {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      font-size: 7pt !important;
+      font-family: Arial, sans-serif !important;
+      table-layout: fixed;
+    }
+    .tabla-caja thead tr {
+      background: #fff !important;
+      color: #000 !important;
+    }
+    .tabla-caja th {
+      padding: 3px 4px !important;
+      font-size: 6.5pt !important;
+      font-weight: bold !important;
+      color: #000 !important;
+      border: 0.5px solid #ccc !important;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .tabla-caja td {
+      padding: 2px 4px !important;
+      font-size: 7pt !important;
+      border: 0.5px solid #ddd !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #000 !important;
+      line-height: 1.2 !important;
+    }
+    .tabla-caja tbody tr { border-bottom: 0.5px solid #ddd !important; }
+    .tabla-caja tbody tr:nth-child(even) { background: #fff !important; }
+
+    /* Anchos de columnas optimizados para carta */
+    .tabla-caja th:nth-child(1), .tabla-caja td:nth-child(1) { width:4%; }   /* # */
+    .tabla-caja th:nth-child(2), .tabla-caja td:nth-child(2) { width:9%; }   /* Folio */
+    .tabla-caja th:nth-child(3), .tabla-caja td:nth-child(3) { width:10%; }  /* Placa */
+    .tabla-caja th:nth-child(4), .tabla-caja td:nth-child(4) { width:9%; }   /* Tipo */
+    .tabla-caja th:nth-child(5), .tabla-caja td:nth-child(5) { width:9%; }   /* Opción */
+    .tabla-caja th:nth-child(6), .tabla-caja td:nth-child(6) { width:22%; }  /* Propietario */
+    .tabla-caja th:nth-child(7), .tabla-caja td:nth-child(7) { width:11%; }  /* Cajero */
+    .tabla-caja th:nth-child(8), .tabla-caja td:nth-child(8) { width:8%; }   /* Fecha */
+    .tabla-caja th:nth-child(9), .tabla-caja td:nth-child(9) { width:7%; }   /* Hora */
+    .tabla-caja th:nth-child(10), .tabla-caja td:nth-child(10) { width:11%; } /* Denuncia */
+
+    .td-placa { color:#000 !important; font-weight:bold !important; letter-spacing:1px !important; }
+    .td-tipo  { color:#000 !important; }
+    .td-folio { color:#000 !important; }
+
+    /* Pie de página con número de página */
+    #panelTabla::after {
+      content: '';
+      display: block;
+      margin-top: 4mm;
+      border-top: 0.5px solid #ccc;
+      padding-top: 2mm;
+      font-size: 6.5pt;
+      color: #000;
+      font-family: Arial, sans-serif;
+    }
+  }
+
+  .print-header {
+    display:none; text-align:center; margin-bottom:0.5rem; font-family:'Rajdhani',sans-serif;
+    border-bottom: 1px solid #999; padding-bottom: 4mm;
+  }
+  .print-header h2 { font-size:13pt; color:#000; letter-spacing:2px; font-weight:bold; margin-bottom:2px; }
+  .print-header p  { font-size:8pt; color:#333; letter-spacing:0.5px; }
+
+  .badge-count {
+    background:rgba(0,200,255,0.15); border:1px solid rgba(0,200,255,0.4);
+    border-radius:12px; padding:2px 10px; font-size:0.78rem;
+    color:var(--accent); font-family:'Share Tech Mono',monospace; margin-left:auto;
+  }
+
+  /* ── FORM STICKY ── */
+  #panelForm {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    margin-bottom: 0;
+  }
+
+  /* ── TABLA SCROLL ── */
+  .tabla-caja-wrap {
+    max-height: 55vh;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+  /* Thead fijo dentro del scroll */
+  .tabla-caja thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #003366;
+  }
+
+  /* ── BOTONES EDITAR / BORRAR EN TABLA ── */
+  .btn-edit {
+    background: rgba(255,171,0,0.15); border:1px solid var(--warning);
+    color:var(--warning); border-radius:5px; padding:2px 8px; cursor:pointer;
+    font-size:0.72rem; font-family:'Rajdhani',sans-serif; font-weight:700;
+    letter-spacing:1px; transition:all 0.15s;
+  }
+  .btn-edit:hover { background:rgba(255,171,0,0.3); }
+  .btn-del {
+    background: rgba(255,61,87,0.15); border:1px solid var(--danger);
+    color:var(--danger); border-radius:5px; padding:2px 8px; cursor:pointer;
+    font-size:0.72rem; font-family:'Rajdhani',sans-serif; font-weight:700;
+    letter-spacing:1px; transition:all 0.15s; margin-left:4px;
+  }
+  .btn-del:hover { background:rgba(255,61,87,0.3); }
+
+  /* ── MODAL GRANDE (cajas / edición) ── */
+  .modal-xl {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    width:92vw; max-width:1100px; max-height:90vh;
+    box-shadow:0 20px 60px rgba(0,0,0,0.7);
+    display:flex; flex-direction:column; animation:modalIn 0.25s ease;
+  }
+  .modal-xl .modal-body {
+    overflow-y: auto; flex:1; padding:1.2rem 1.5rem;
+  }
+  .modal-xl .modal-head {
+    background:linear-gradient(135deg,#003366,#0055a5);
+    padding:1rem 1.5rem; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  }
+  .modal-xl .modal-foot {
+    padding:0.8rem 1.5rem; border-top:1px solid var(--border);
+    display:flex; gap:0.8rem; justify-content:flex-end; flex-shrink:0;
+    background:var(--surface2);
+  }
+  .btn-cerrar {
+    background:transparent; border:1px solid var(--border); color:var(--text2);
+    border-radius:8px; padding:0.5rem 1.2rem; cursor:pointer;
+    font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1px;
+    font-size:0.9rem; transition:all 0.15s;
+  }
+  .btn-cerrar:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* ── LISTA DE CAJAS ── */
+  .caja-item {
+    display:flex; align-items:center; gap:1rem;
+    padding:0.8rem 1rem; border:1px solid var(--border); border-radius:8px;
+    background:var(--bg); margin-bottom:0.6rem; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .caja-item:hover { border-color:var(--accent); background:rgba(0,200,255,0.04); }
+  .caja-item-num { font-family:'Share Tech Mono',monospace; color:var(--accent); font-size:1.1rem; font-weight:700; min-width:80px; }
+  .caja-item-info { flex:1; font-size:0.82rem; color:var(--text2); }
+  .caja-item-info strong { color:var(--text); }
+  .caja-item-count { background:rgba(0,200,255,0.15); border:1px solid rgba(0,200,255,0.3); border-radius:10px; padding:2px 10px; font-size:0.75rem; color:var(--accent); font-family:'Share Tech Mono',monospace; }
+
+  /* ── MODAL EDITAR REGISTRO ── */
+  .edit-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-top:0.5rem;
+  }
+  .edit-grid .form-group { margin:0; }
+  .edit-grid label { font-size:0.68rem; }
+  .edit-grid input { padding:0.55rem 0.7rem; font-size:0.9rem; }
 </style>
 </head>
 <body>
@@ -205,133 +502,272 @@
 
 <div class="main-layout">
 
+  <!-- COLUMNA IZQUIERDA: STATS + FORMULARIO -->
+  <div class="col-izq">
+
   <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-card blue">
-      <div class="stat-num" id="statTotal">—</div>
-      <div class="stat-label">Total Global</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;">
+    <div class="stat-card blue" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:1rem;text-align:left;">
+      <div class="stat-num" id="statTotal" style="font-size:1.6rem;">—</div>
+      <div class="stat-label" style="margin:0;">Total Global</div>
     </div>
-    <div class="stat-card green">
-      <div class="stat-num" id="statHoy">—</div>
-      <div class="stat-label">Hoy</div>
+    <div class="stat-card green" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:1rem;text-align:left;">
+      <div class="stat-num" id="statHoy" style="font-size:1.6rem;">—</div>
+      <div class="stat-label" style="margin:0;">Hoy</div>
     </div>
-    <div class="stat-card yellow">
-      <div class="stat-num" id="statMisCapturas">0</div>
-      <div class="stat-label">Mis Capturas</div>
+    <div class="stat-card yellow" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:1rem;text-align:left;">
+      <div class="stat-num" id="statMisCapturas" style="font-size:1.6rem;">0</div>
+      <div class="stat-label" style="margin:0;">Esta Caja</div>
     </div>
   </div>
 
-  <!-- FORMULARIO -->
-  <div class="panel">
+  <!-- FORMULARIO DE CAPTURA -->
+  <div class="panel" id="panelForm">
     <div class="panel-header">
       <div class="panel-icon">📋</div>
       <h2>Nueva Captura</h2>
-      <div id="cajaIndicador" style="margin-left:auto;background:rgba(0,200,255,0.15);border:1px solid var(--accent);border-radius:8px;padding:4px 14px;font-size:0.85rem;color:var(--accent);letter-spacing:1px;cursor:pointer" onclick="cambiarCaja()" title="Click para cambiar caja">
-        📦 <span id="cajaIndicadorTxt">—</span>
+      <div style="margin-left:auto;display:flex;gap:0.6rem;align-items:center;">
+        <div id="cajeroIndicador" style="background:rgba(255,171,0,0.15);border:1px solid var(--warning);border-radius:8px;padding:4px 14px;font-size:0.85rem;color:var(--warning);letter-spacing:1px;cursor:pointer" onclick="cambiarCajero()" title="Click para cambiar cajero">
+          🧑‍💼 <span id="cajeroIndicadorTxt">—</span>
+        </div>
+        <div id="cajaIndicador" style="background:rgba(0,200,255,0.15);border:1px solid var(--accent);border-radius:8px;padding:4px 14px;font-size:0.85rem;color:var(--accent);letter-spacing:1px;cursor:pointer" onclick="cambiarCaja()" title="Click para cambiar caja">
+          📦 <span id="cajaIndicadorTxt">—</span>
+        </div>
       </div>
     </div>
     <div class="panel-body">
 
-      <div class="form-group">
-        <label>🔢 Número de Placa</label>
-        <input type="text" id="inputPlaca" class="placa-input" placeholder="AAA-000-A" maxlength="10" autocomplete="off">
+      <!-- FILA 1: Placa | Tipo vehículo | Opciones placas | Denuncia -->
+      <div style="display:grid;grid-template-columns:160px 1fr 1fr auto;gap:0.8rem;align-items:start;margin-bottom:0.8rem;">
+
+        <div class="form-group" style="margin:0">
+          <label>🔢 Placa</label>
+          <input type="text" id="inputPlaca" class="placa-input" placeholder="AAA-000" maxlength="10" autocomplete="off" style="font-size:1.3rem;padding:0.55rem 0.5rem;letter-spacing:4px;">
+        </div>
+
+        <div class="form-group" style="margin:0">
+          <label>🚦 Tipo de Vehículo</label>
+          <div class="subtipo-btn-grid" style="gap:0.4rem;">
+            <button class="subtipo-btn" id="sbVehiculo" onclick="setTipoVehiculo('vehiculo')">
+              <span class="sico">🚗</span><span>Vehículo</span>
+            </button>
+            <button class="subtipo-btn" id="sbMoto" onclick="setTipoVehiculo('moto')">
+              <span class="sico">🏍️</span><span>Moto</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0;visibility:hidden;" id="paso2Group">
+          <label>🪪 Placas a Entregar</label>
+          <div id="placasOpcionesWrap" style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;"></div>
+        </div>
+
+        <div class="form-group" id="denunciaGroup" style="display:none;margin:0;min-width:170px;">
+          <label>📋 N° Denuncia</label>
+          <input type="text" id="inputDenuncia" placeholder="DEN-2026-001" autocomplete="off"
+            style="font-family:'Exo 2',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:0.55rem 0.7rem;">
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label>🚦 Paso 1 — Tipo de Vehículo</label>
-        <div class="subtipo-btn-grid">
-          <button class="subtipo-btn" id="sbVehiculo" onclick="setTipoVehiculo('vehiculo')">
-            <span class="sico">🚗</span><span>Vehículo</span>
-            <span style="font-size:0.7rem;opacity:0.7">2 placas</span>
-          </button>
-          <button class="subtipo-btn" id="sbMoto" onclick="setTipoVehiculo('moto')">
-            <span class="sico">🏍️</span><span>Motocicleta</span>
-            <span style="font-size:0.7rem;opacity:0.7">1 placa</span>
+      <!-- FILA 2: Cajero | Propietario | Fecha | Botón -->
+      <div style="display:grid;grid-template-columns:1fr 160px 160px;gap:0.8rem;align-items:end;">
+
+        <div class="form-group" style="margin:0">
+          <label>👤 Propietario</label>
+          <input type="text" id="inputPropietario" placeholder="NOMBRE COMPLETO DEL PROPIETARIO" autocomplete="off"
+            style="font-family:'Exo 2',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:0.55rem 0.7rem;">
+        </div>
+
+        <div class="form-group" style="margin:0">
+          <label>📅 Fecha de Baja</label>
+          <input type="date" id="inputFechaPago" style="font-family:'Share Tech Mono',monospace;letter-spacing:1px;color-scheme:dark;text-transform:none;padding:0.55rem 0.7rem;">
+        </div>
+
+        <div>
+          <button class="btn-registrar" onclick="registrar()" id="btnRegistrar" style="margin-top:0;padding:0.72rem 1rem;font-size:1rem;">
+            ✅ REGISTRAR
           </button>
         </div>
+
       </div>
 
-      <div class="form-group subtipo-group" id="paso2Group" style="display:none">
-        <label>🪪 Paso 2 — Placas a Entregar</label>
-        <div id="placasOpcionesWrap"></div>
-      </div>
+    </div>
+  </div>
 
-      <div class="form-group subtipo-group" id="denunciaGroup" style="display:none">
-        <label>📋 Paso 3 — Número de Denuncia</label>
-        <input type="text" id="inputDenuncia" placeholder="Ej. DEN-2026-001" autocomplete="off"
-          style="font-family:'Exo 2',sans-serif;letter-spacing:1px;text-transform:uppercase;">
-        <div style="font-size:0.72rem;color:var(--text2);margin-top:0.4rem">
-          Folio/número de la denuncia por placa(s) extraviada(s)
-        </div>
-      </div>
+  </div><!-- /col-izq -->
 
-      <div class="form-group">
-        <label>👤 Nombre del Propietario</label>
-        <input type="text" id="inputPropietario" placeholder="Nombre completo del propietario" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
-      </div>
-
-      <div class="form-group">
-        <label>🧑‍💼 Cajero</label>
-        <input type="text" id="inputCajero" placeholder="Nombre del cajero" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
-      </div>
-
-      <div class="form-group">
-        <label>💻 Capturista</label>
-        <input type="text" id="inputCapturista" placeholder="Nombre del capturista" autocomplete="off" style="font-family:'Exo 2',sans-serif;letter-spacing:1px;">
-      </div>
-
-      <div class="form-group">
-        <label>📅 Fecha de Baja del Trámite</label>
-        <input type="date" id="inputFechaPago" style="font-family:'Share Tech Mono',monospace;letter-spacing:1px;color-scheme:dark;">
-      </div>
-
-      <button class="btn-registrar" onclick="registrar()" id="btnRegistrar">
-        ✅ &nbsp; Registrar Placa
+  <!-- COLUMNA DERECHA: TABLA -->
+  <div class="col-der">
+  <div class="panel" id="panelTabla">
+    <div class="panel-header">
+      <div class="panel-icon">📊</div>
+      <h2>Registros de Caja</h2>
+      <span class="badge-count" id="badgeCount">0 registros</span>
+      <button onclick="abrirModalCajas()" style="margin-left:0.8rem;background:rgba(255,171,0,0.15);border:1px solid var(--warning);color:var(--warning);border-radius:8px;padding:5px 14px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:1px;">
+        📂 ABRIR CAJA
       </button>
     </div>
+    <div class="panel-body">
+      <div class="print-header">
+        <h2>🚗 CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
+        <p id="printInfo">GOBIERNO DEL ESTADO DE NAYARIT</p>
+      </div>
+      <div class="info-caja-header" id="infoCajaHeader"></div>
+      <div class="tabla-caja-wrap">
+        <table class="tabla-caja" id="tablaCaja">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Folio</th>
+              <th>Placa</th>
+              <th>Tipo</th>
+              <th>Placas</th>
+              <th>Propietario</th>
+              <th>Cajero</th>
+              <th>Fecha Baja</th>
+              <th>Hora</th>
+              <th>Denuncia</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCajaBody">
+            <tr id="trVacia"><td colspan="10" style="text-align:center;padding:3rem;color:var(--text2);font-family:'Exo 2',sans-serif;letter-spacing:1px;font-size:0.9rem;">📋 LOS REGISTROS APARECERÁN AQUÍ CONFORME SE CAPTUREN</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="acciones-caja">
+        <button class="btn-accion btn-guardar" onclick="guardarCaja()">💾 Guardar Caja y Cerrar</button>
+        <button class="btn-accion btn-imprimir" onclick="imprimirTabla()">🖨️ Imprimir</button>
+
+      </div>
+    </div>
   </div>
 
-  <!-- ÚLTIMOS REGISTROS DE ESTA SESIÓN -->
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-icon">📝</div>
-      <h2>Mis Últimas Capturas (Sesión)</h2>
-    </div>
-    <div class="panel-body" id="ultimosList">
-      <div style="color:var(--text2);text-align:center;padding:1rem;font-size:0.85rem">Sin capturas en esta sesión</div>
-    </div>
-  </div>
+  </div><!-- /col-der -->
 
 </div>
 
 <!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- MODAL CAJA -->
-<div class="modal-overlay open" id="cajaModal" style="z-index:9999">
-  <div class="modal">
+<!-- MODAL: LISTA DE CAJAS -->
+<div class="modal-overlay" id="modalCajas">
+  <div class="modal-xl">
     <div class="modal-head">
-      <h3>📦 Número de Caja</h3>
+      <h3>📂 Mis Cajas Capturadas</h3>
+      <button class="btn-cerrar" onclick="document.getElementById('modalCajas').classList.remove('open')">✕ CERRAR</button>
     </div>
     <div class="modal-body">
-      <p style="color:var(--text2);margin-bottom:1.2rem;font-size:0.92rem;letter-spacing:0.5px">
-        Ingrese el número de caja con la que va a trabajar en esta sesión.
+      <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem;letter-spacing:0.5px">
+        Solo se muestran cajas capturadas con tu usuario. Haz clic en una caja para ver, editar o imprimir sus registros.
       </p>
-      <div class="form-group" style="margin-bottom:1.5rem">
-        <label>🔢 Número de Caja</label>
-        <input type="text" id="inputCajaModal" class="placa-input" placeholder="Ej. CAJA-01" maxlength="20"
-               autocomplete="off" style="font-size:1.3rem;text-align:center;letter-spacing:3px"
-               onkeydown="if(event.key==='Enter') confirmarCaja()">
-      </div>
-      <button class="btn-registrar" onclick="confirmarCaja()">✅ CONFIRMAR CAJA</button>
+      <div id="listaCajas" style="min-height:100px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cerrar" onclick="document.getElementById('modalCajas').classList.remove('open')">CERRAR</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL: VER/EDITAR CAJA -->
+<div class="modal-overlay" id="modalVerCaja">
+  <div class="modal-xl">
+    <div class="modal-head">
+      <div>
+        <h3 id="verCajaTitulo">📋 CAJA —</h3>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px;" id="verCajaInfo"></div>
+      </div>
+      <button class="btn-cerrar" onclick="cerrarVerCaja()">✕ CERRAR</button>
+    </div>
+    <div class="modal-body">
+      <div id="verCajaTablaWrap">
+        <table class="tabla-caja" id="tablaVerCaja" style="width:100%">
+          <thead>
+            <tr>
+              <th>#</th><th>Folio</th><th>Placa</th><th>Tipo</th><th>Placas</th>
+              <th>Propietario</th><th>Cajero</th><th>Fecha Baja</th><th>Hora</th><th>Denuncia</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="verCajaBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-accion btn-imprimir" style="flex:0;padding:0.5rem 1.2rem;" onclick="imprimirCajaVer()">🖨️ IMPRIMIR</button>
+      <button class="btn-cerrar" onclick="cerrarVerCaja()">CERRAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR REGISTRO -->
+<div class="modal-overlay" id="modalEditReg">
+  <div class="modal" style="width:500px;">
+    <div class="modal-head">
+      <h3>✏️ Editar Registro</h3>
+      <button class="btn-cerrar" onclick="document.getElementById('modalEditReg').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="edit-grid">
+        <div class="form-group">
+          <label>🔢 Placa</label>
+          <input type="text" id="editPlaca" style="text-transform:uppercase;font-family:'Share Tech Mono',monospace;letter-spacing:3px;font-weight:700;color:var(--accent);">
+        </div>
+        <div class="form-group">
+          <label>📅 Fecha de Baja</label>
+          <input type="date" id="editFecha" style="color-scheme:dark;">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label>👤 Propietario</label>
+          <input type="text" id="editPropietario" style="text-transform:uppercase;font-family:'Exo 2',sans-serif;letter-spacing:1px;">
+        </div>
+        <div class="form-group">
+          <label>🧑‍💼 Cajero</label>
+          <input type="text" id="editCajero" style="text-transform:uppercase;font-family:'Exo 2',sans-serif;">
+        </div>
+        <div class="form-group">
+          <label>📋 Denuncia</label>
+          <input type="text" id="editDenuncia" style="text-transform:uppercase;font-family:'Share Tech Mono',monospace;">
+        </div>
+      </div>
+      <input type="hidden" id="editDocId">
+      <input type="hidden" id="editOrigen"> <!-- 'activa' o 'ver' -->
+    </div>
+    <div style="padding:0.8rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.8rem;justify-content:flex-end;background:var(--surface2);">
+      <button class="btn-cerrar" onclick="document.getElementById('modalEditReg').classList.remove('open')">CANCELAR</button>
+      <button class="btn-accion btn-guardar" style="flex:0;padding:0.5rem 1.5rem;" onclick="guardarEdicion()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 1: CAPTURISTA -->
+<div class="modal-overlay open" id="capturistaModal" style="z-index:10000">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>👤 Bienvenido — Identificación</h3>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);margin-bottom:1.5rem;font-size:0.92rem;letter-spacing:0.5px">
+        Ingrese su nombre para continuar. Quedará registrado en todas las capturas de esta sesión.
+      </p>
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label>💻 Nombre del Capturista</label>
+        <input type="text" id="inputCapturistaModal" class="placa-input"
+               placeholder="SU NOMBRE COMPLETO" maxlength="60" autocomplete="off"
+               style="font-size:1.1rem;text-align:center;letter-spacing:2px;text-transform:uppercase;"
+               onkeydown="if(event.key==='Enter') confirmarCapturista()">
+      </div>
+      <button class="btn-registrar" onclick="confirmarCapturista()">✅ CONTINUAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal caja eliminado -->
+
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, where, Timestamp }
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, where, Timestamp, doc, updateDoc, deleteDoc, runTransaction, setDoc, enableNetwork, disableNetwork }
     from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -345,31 +781,67 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
-  const col = collection(db, 'placas');
+  const col         = collection(db, 'placas');
+  const contadorRef = doc(db, 'contadores', 'folios'); // contador atómico compartido
 
   // ─── ESTADO ───
-  let allDocs = [];
-  let misCapturas = 0;
-  let cajaActiva = localStorage.getItem('placas_caja_activa') || '';
-  let tipoVehiculo = null, placaOpcion = null, cantidad = 0;
+  let allDocs       = [];
+  let cajaDocs      = []; // registros de la caja actual en esta sesión
+  let misCapturas   = 0;
+  let cajaActiva    = '';
+  let capturistaActivo = '';
+  let cajeroActivo  = '';
+  let tipoVehiculo  = null, placaOpcion = null, cantidad = 0;
 
-  // ─── STATUS FIREBASE ───
+  // ─── FORZAR MAYÚSCULAS EN TODOS LOS INPUTS DE TEXTO ───
+  document.addEventListener('input', function(e) {
+    const t = e.target;
+    if ((t.tagName === 'INPUT' && t.type === 'text') || t.tagName === 'TEXTAREA') {
+      const pos = t.selectionStart;
+      t.value = t.value.toUpperCase();
+      try { t.setSelectionRange(pos, pos); } catch(_) {}
+    }
+  });
+
+  // ─── STATUS FIREBASE — conexión real ───
   function setStatus(s) {
     const el = document.getElementById('fbStatus');
     const tx = document.getElementById('fbStatusTxt');
     el.className = 'fb-status ' + s;
-    tx.textContent = s === 'conectado' ? 'EN LÍNEA' : s === 'desconectado' ? 'SIN CONEXIÓN' : 'CONECTANDO...';
+    tx.textContent = s === 'conectado' ? 'EN LÍNEA'
+                   : s === 'desconectado' ? 'SIN CONEXIÓN'
+                   : 'CONECTANDO...';
   }
+
+  // Firebase expone un doc especial en .info/connected que refleja
+  // el estado real del socket con los servidores de Firestore/RTDB.
+  // Usamos onSnapshot sobre el doc 'contadores/folios' como heartbeat:
+  // si Firebase responde → conectado, si el listener da error → desconectado.
+  // Además escuchamos los eventos del navegador para reaccionar rápido.
+
+  let fbConectado = false;
+
+  // Listener del navegador (reacción rápida a cambios de red)
+  window.addEventListener('online',  () => { if (!fbConectado) setStatus('conectando'); enableNetwork(db).catch(()=>{}); });
+  window.addEventListener('offline', () => { fbConectado = false; setStatus('desconectado'); });
+
+  // Timeout de conexión inicial — si en 8s no responde Firebase → error
+  const timeoutConexion = setTimeout(() => {
+    if (!fbConectado) setStatus('desconectado');
+  }, 8000);
 
   // ─── ESCUCHAR CAMBIOS EN TIEMPO REAL ───
   const q = query(col, orderBy('timestamp', 'desc'));
   onSnapshot(q, (snap) => {
+    clearTimeout(timeoutConexion);
+    fbConectado = true;
     allDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
     setStatus('conectado');
     updateStats();
   }, (err) => {
+    fbConectado = false;
     setStatus('desconectado');
-    console.error(err);
+    console.error('Firebase onSnapshot error:', err);
   });
 
   // ─── STATS ───
@@ -394,33 +866,43 @@
   }
   setInterval(updateClock, 1000); updateClock();
 
-  // ─── CAJA ───
-  window.confirmarCaja = function() {
-    const val = document.getElementById('inputCajaModal').value.trim().toUpperCase();
-    if (!val) { document.getElementById('inputCajaModal').style.border='2px solid var(--danger)'; return; }
-    cajaActiva = val;
-    localStorage.setItem('placas_caja_activa', cajaActiva);
-    document.getElementById('cajaModal').classList.remove('open');
-    document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
+  // ─── MODAL CAPTURISTA ───
+  window.confirmarCapturista = function() {
+    const captura = document.getElementById('inputCapturistaModal').value.trim().toUpperCase();
+    if (!captura) { document.getElementById('inputCapturistaModal').style.border = '2px solid var(--danger)'; document.getElementById('inputCapturistaModal').focus(); return; }
+    capturistaActivo = captura;
+    sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
+    document.getElementById('capturistaModal').classList.remove('open');
     document.getElementById('inputPlaca').focus();
-  };
-  window.cambiarCaja = function() {
-    document.getElementById('inputCajaModal').value = cajaActiva;
-    document.getElementById('cajaModal').classList.add('open');
-    setTimeout(() => document.getElementById('inputCajaModal').focus(), 100);
+    toast('✅ BIENVENIDO ' + capturistaActivo);
   };
 
-  window.addEventListener('DOMContentLoaded', () => {
-    if (cajaActiva) {
-      document.getElementById('cajaModal').classList.remove('open');
-      document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
-      document.getElementById('inputCajaModal').value = cajaActiva;
+
+
+  window.cambiarCajero = function() {
+    const nuevo = prompt('NOMBRE DEL CAJERO:', cajeroActivo);
+    if (nuevo && nuevo.trim()) {
+      cajeroActivo = nuevo.trim().toUpperCase();
+      sessionStorage.setItem('placas_cajero_sesion', cajeroActivo);
+      localStorage.setItem('placas_cajero_activo', cajeroActivo);
+      document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
+      actualizarInfoCaja();
+      toast('✅ CAJERO: ' + cajeroActivo);
     }
-    const cajeroG = localStorage.getItem('placas_cajero_activo') || '';
-    const capG    = localStorage.getItem('placas_capturista_activo') || '';
-    if (cajeroG) document.getElementById('inputCajero').value = cajeroG;
-    if (capG)    document.getElementById('inputCapturista').value = capG;
-  });
+  };
+
+  window.cambiarCaja = function() {
+    const nuevo = prompt('NÚMERO DE CAJA:', cajaActiva);
+    if (nuevo && nuevo.trim()) {
+      cajaActiva = nuevo.trim().toUpperCase();
+      sessionStorage.setItem('placas_caja_sesion', cajaActiva);
+      document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
+      document.querySelector('.header-info p').textContent =
+        `CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaActiva}`;
+      actualizarInfoCaja();
+      toast('✅ CAJA ACTUALIZADA: ' + cajaActiva);
+    }
+  };
 
   // ─── TIPO VEHÍCULO ───
   window.setTipoVehiculo = function(t) {
@@ -430,34 +912,29 @@
     const wrap = document.getElementById('placasOpcionesWrap');
     if (t === 'vehiculo') {
       wrap.innerHTML = `
-        <div class="subtipo-btn-grid" style="grid-template-columns:1fr 1fr">
+        <div class="subtipo-btn-grid" style="grid-template-columns:1fr 1fr;gap:0.4rem;">
           <button class="subtipo-btn" id="po_2p" onclick="setPlacaOpcion('2placas')" style="grid-column:span 2">
-            <span class="sico">🪪🪪</span><span>2 Placas Completas</span>
-            <span style="font-size:0.7rem;opacity:0.7">entrega normal</span>
+            <span class="sico">🪪🪪</span><span>2 Placas</span>
           </button>
           <button class="subtipo-btn" id="po_1p1d" onclick="setPlacaOpcion('1placa_den1')">
-            <span class="sico">🪪📋</span><span>1 Placa + Denuncia</span>
-            <span style="font-size:0.7rem;opacity:0.7">1 extraviada</span>
+            <span class="sico">🪪📋</span><span>1+Denuncia</span>
           </button>
           <button class="subtipo-btn" id="po_0p2d" onclick="setPlacaOpcion('0placas_den')">
-            <span class="sico">📋📋</span><span>Solo Denuncia</span>
-            <span style="font-size:0.7rem;opacity:0.7">2 extraviadas</span>
+            <span class="sico">📋📋</span><span>Solo Den.</span>
           </button>
         </div>`;
     } else {
       wrap.innerHTML = `
-        <div class="subtipo-btn-grid">
+        <div class="subtipo-btn-grid" style="grid-template-columns:1fr 1fr;gap:0.4rem;">
           <button class="subtipo-btn" id="po_1p" onclick="setPlacaOpcion('1placa')">
             <span class="sico">🪪</span><span>1 Placa</span>
-            <span style="font-size:0.7rem;opacity:0.7">entrega normal</span>
           </button>
           <button class="subtipo-btn" id="po_0pd" onclick="setPlacaOpcion('0placas_den')">
             <span class="sico">📋</span><span>Denuncia</span>
-            <span style="font-size:0.7rem;opacity:0.7">placa extraviada</span>
           </button>
         </div>`;
     }
-    document.getElementById('paso2Group').style.display = 'block';
+    document.getElementById('paso2Group').style.visibility = 'visible';
     document.getElementById('denunciaGroup').style.display = 'none';
     document.getElementById('inputDenuncia').value = '';
     cantidad = t === 'moto' ? 1 : 2;
@@ -481,66 +958,79 @@
   function resetTramite() {
     tipoVehiculo=null; placaOpcion=null; cantidad=0;
     ['sbVehiculo','sbMoto'].forEach(id => document.getElementById(id).classList.remove('active'));
-    document.getElementById('paso2Group').style.display='none';
+    document.getElementById('paso2Group').style.visibility='hidden';
     document.getElementById('denunciaGroup').style.display='none';
     document.getElementById('placasOpcionesWrap').innerHTML='';
     document.getElementById('inputDenuncia').value='';
   }
 
   // ─── FOLIO ───
+  // ─── FOLIO ATÓMICO CON TRANSACCIÓN FIREBASE ───
+  // runTransaction garantiza que aunque 10 máquinas capturen al mismo tiempo
+  // cada una recibe un número único sin colisiones ni duplicados.
   async function genFolio() {
-    const max = allDocs.length > 0 ? Math.max(...allDocs.map(r => r.folioNum || 0)) : 0;
-    return { num: max+1, str: 'NAY-' + String(max+1).padStart(5,'0') };
+    let nuevoNum;
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(contadorRef);
+      if (snap.exists()) {
+        nuevoNum = (snap.data().ultimo || 0) + 1;
+      } else {
+        // Primera vez: buscar el máximo real en la colección para no reiniciar
+        const todos = await getDocs(collection(db, 'placas'));
+        const maxExistente = todos.empty ? 0 : Math.max(...todos.docs.map(d => d.data().folioNum || 0));
+        nuevoNum = maxExistente + 1;
+      }
+      tx.set(contadorRef, { ultimo: nuevoNum, actualizadoEn: new Date().toISOString() });
+    });
+    return { num: nuevoNum, str: 'NAY-' + String(nuevoNum).padStart(5,'0') };
   }
 
   // ─── REGISTRAR ───
   window.registrar = async function() {
     const placa       = document.getElementById('inputPlaca').value.trim().toUpperCase();
-    const propietario = document.getElementById('inputPropietario').value.trim();
-    const cajero      = document.getElementById('inputCajero').value.trim();
-    const capturista  = document.getElementById('inputCapturista').value.trim();
+    const cajero      = cajeroActivo;
+    const propietario = document.getElementById('inputPropietario').value.trim().toUpperCase();
     const fechaPago   = document.getElementById('inputFechaPago').value;
 
-    if (!placa)        { toast('⚠️ Ingrese el número de placa', true); return; }
-    if (!tipoVehiculo) { toast('⚠️ Seleccione el tipo de vehículo', true); return; }
-    if (!placaOpcion)  { toast('⚠️ Seleccione la opción de placas', true); return; }
-    if (!propietario)  { toast('⚠️ Ingrese el nombre del propietario', true); return; }
-    if (!cajero)       { toast('⚠️ Ingrese el nombre del cajero', true); return; }
-    if (!capturista)   { toast('⚠️ Ingrese el nombre del capturista', true); return; }
-    if (!fechaPago)    { toast('⚠️ Seleccione la fecha de baja', true); return; }
+    if (!placa)        { toast('⚠️ INGRESE EL NÚMERO DE PLACA', true); return; }
+    if (!cajero)       { toast('⚠️ DEFINA EL CAJERO — CLICK EN EL ÍCONO 🧑‍💼', true); return; }
+    if (!tipoVehiculo) { toast('⚠️ SELECCIONE EL TIPO DE VEHÍCULO', true); return; }
+    if (!placaOpcion)  { toast('⚠️ SELECCIONE LA OPCIÓN DE PLACAS', true); return; }
+    if (!propietario)  { toast('⚠️ INGRESE EL NOMBRE DEL PROPIETARIO', true); return; }
+    if (!fechaPago)    { toast('⚠️ SELECCIONE LA FECHA DE BAJA', true); return; }
 
     let denuncia = '';
     if (placaOpcion && placaOpcion.includes('den')) {
       denuncia = document.getElementById('inputDenuncia').value.trim().toUpperCase();
-      if (!denuncia) { toast('⚠️ Ingrese el número de denuncia', true); return; }
+      if (!denuncia) { toast('⚠️ INGRESE EL NÚMERO DE DENUNCIA', true); return; }
     }
 
-    // Verificar duplicado placa
     if (allDocs.some(r => r.placa === placa)) {
-      toast(`⛔ La placa ${placa} ya fue registrada. No es posible duplicar.`, true);
+      toast(`⛔ LA PLACA ${placa} YA FUE REGISTRADA.`, true);
       document.getElementById('inputPlaca').focus(); return;
     }
-    // Verificar duplicado denuncia
     if (denuncia && allDocs.some(r => r.denuncia === denuncia)) {
-      toast(`⛔ La denuncia ${denuncia} ya fue registrada. No es posible duplicar.`, true);
+      toast(`⛔ LA DENUNCIA ${denuncia} YA FUE REGISTRADA.`, true);
       document.getElementById('inputDenuncia').focus(); return;
     }
 
     const btn = document.getElementById('btnRegistrar');
-    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+    btn.disabled = true; btn.textContent = '⏳ GUARDANDO...';
 
     try {
       const now = new Date();
       const [fy,fm,fd] = fechaPago.split('-');
       const fechaFmt = `${fd}/${fm}/${fy}`;
       const folio = await genFolio();
+      const horaStr = now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
       const registro = {
         folioNum: folio.num, folio: folio.str,
         caja: cajaActiva, placa, cantidad, tipoVehiculo, placaOpcion,
-        subtipo: tipoVehiculo, denuncia, propietario, cajero, capturista,
+        subtipo: tipoVehiculo, denuncia, propietario, cajero,
+        capturista: capturistaActivo,
         fecha: fechaFmt,
-        hora: now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+        hora: horaStr,
         fechaCaptura: now.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}),
         fechaISO: new Date(fechaPago).toISOString(),
         timestamp: new Date(fechaPago).getTime(),
@@ -549,43 +1039,449 @@
 
       await addDoc(col, registro);
 
-      localStorage.setItem('placas_cajero_activo', cajero);
-      localStorage.setItem('placas_capturista_activo', capturista);
-
+      localStorage.setItem('placas_cajero_activo', cajeroActivo);
+      sessionStorage.setItem('placas_cajero_sesion', cajeroActivo);
       misCapturas++;
-      agregarUltimo({ placa, folio: folio.str, hora: registro.hora });
+      cajaDocs.push(registro);
+      agregarFilaTabla(registro, misCapturas);
+      actualizarInfoCaja();
+
+      // tabla siempre visible
+      document.getElementById('badgeCount').textContent = `${misCapturas} registro${misCapturas !== 1 ? 's' : ''}`;
 
       document.getElementById('inputPlaca').value = '';
       document.getElementById('inputPropietario').value = '';
       document.getElementById('inputFechaPago').value = '';
       resetTramite();
-      toast(`✅ Placa ${placa} registrada — Folio ${folio.str}`);
+      toast(`✅ PLACA ${placa} REGISTRADA — FOLIO ${folio.str}`);
       document.getElementById('inputPlaca').focus();
 
     } catch(e) {
-      toast('❌ Error al guardar. Verifique conexión.', true);
+      toast('❌ ERROR AL GUARDAR. VERIFIQUE CONEXIÓN.', true);
       console.error(e);
     } finally {
-      btn.disabled = false; btn.textContent = '✅  Registrar Placa';
+      btn.disabled = false; btn.textContent = '✅  REGISTRAR PLACA';
     }
   };
 
-  // ─── ÚLTIMAS CAPTURAS (sesión) ───
-  function agregarUltimo(r) {
-    const list = document.getElementById('ultimosList');
-    const div = document.createElement('div');
-    div.className = 'registro-reciente';
-    div.innerHTML = `
-      <span class="reg-placa">${r.placa}</span>
-      <span class="reg-folio">${r.folio}</span>
-      <span class="reg-hora">${r.hora}</span>`;
-    if (list.children.length === 1 && list.children[0].tagName !== 'DIV'.split('')[0]) {
-      list.innerHTML = '';
-    }
-    list.prepend(div);
-    // Máximo 10 visibles
-    while (list.children.length > 10) list.removeChild(list.lastChild);
+  // ─── AGREGAR FILA A TABLA ───
+  function agregarFilaTabla(r, num) {
+    const tbody = document.getElementById('tablaCajaBody');
+    const trVacia = document.getElementById('trVacia');
+    if (trVacia) trVacia.remove();
+    const tr = document.createElement('tr');
+    const tipoLabel = r.tipoVehiculo === 'moto' ? '🏍️ MOTO' : '🚗 VEHÍCULO';
+    const opLabel = {
+      '2placas': '2 Placas', '1placa': '1 Placa',
+      '1placa_den1': '1+Denuncia', '0placas_den': 'Solo Den.'
+    }[r.placaOpcion] || r.placaOpcion;
+
+    tr.setAttribute('data-docid', r.docId || '');
+    tr.innerHTML = `
+      <td class="td-num">${num}</td>
+      <td class="td-folio">${r.folio}</td>
+      <td class="td-placa">${r.placa}</td>
+      <td class="td-tipo">${tipoLabel}</td>
+      <td class="td-num">${opLabel}</td>
+      <td class="td-prop">${r.propietario}</td>
+      <td class="td-prop">${r.cajero}</td>
+      <td class="td-hora">${r.fecha}</td>
+      <td class="td-hora">${r.hora}</td>
+      <td class="td-den">${r.denuncia || '—'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-edit" onclick="editarRegistro('${r.docId || ''}','activa')">✏️ EDIT</button>
+        <button class="btn-del"  onclick="borrarRegistro('${r.docId || ''}','activa','${r.placa}')">🗑️</button>
+      </td>`;
+    tbody.appendChild(tr);
+
+    // Scroll al último — el wrap de la tabla hace scroll, no el body
+    const wrap = document.querySelector('.tabla-caja-wrap');
+    if (wrap) wrap.scrollTop = wrap.scrollHeight;
   }
+
+  // ─── INFO HEADER TABLA ───
+  function actualizarInfoCaja() {
+    const hdr = document.getElementById('infoCajaHeader');
+    const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+    hdr.innerHTML = `
+      <div class="info-caja-item">🧑‍💼 Cajero: <strong>${cajeroActivo}</strong></div>
+      <div class="info-caja-item">💻 Capturista: <strong>${capturistaActivo}</strong></div>
+      <div class="info-caja-item">📦 Caja: <strong>${cajaActiva}</strong></div>
+      <div class="info-caja-item">📅 Fecha: <strong>${fecha}</strong></div>
+      <div class="info-caja-item">🔢 Registros: <strong>${misCapturas}</strong></div>`;
+    // Print info
+    document.getElementById('printInfo').textContent =
+      `CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaActiva} | FECHA: ${fecha} | REGISTROS: ${misCapturas}`;
+  }
+
+  // ─── GUARDAR CAJA Y CERRAR ───
+  window.guardarCaja = async function() {
+    if (cajaDocs.length === 0) { toast('⚠️ NO HAY REGISTROS EN ESTA CAJA', true); return; }
+    if (!confirm(`¿CERRAR CAJA ${cajaActiva}?\n${cajaDocs.length} registro(s) ya guardados en Firebase.\nSe limpiará la pantalla para comenzar una caja nueva.`)) return;
+
+    // Limpiar estado local de la caja
+    cajaDocs    = [];
+    misCapturas = 0;
+    cajaActiva  = '';
+    cajeroActivo = '';
+    sessionStorage.removeItem('placas_caja_sesion');
+    sessionStorage.removeItem('placas_cajero_sesion');
+
+    // Limpiar tabla
+    const tbody = document.getElementById('tablaCajaBody');
+    tbody.innerHTML = '<tr id="trVacia"><td colspan="11" style="text-align:center;padding:3rem;color:var(--text2);font-size:0.9rem;">📋 LOS REGISTROS APARECERÁN AQUÍ CONFORME SE CAPTUREN</td></tr>';
+    document.getElementById('badgeCount').textContent = '0 registros';
+    document.getElementById('statMisCapturas').textContent = '0';
+    document.getElementById('infoCajaHeader').innerHTML = '';
+
+    // Limpiar indicadores del header
+    document.getElementById('cajaIndicadorTxt').textContent   = '—';
+    document.getElementById('cajeroIndicadorTxt').textContent = '—';
+
+    // Pedir número de nueva caja
+    const nuevaCaja = prompt('NÚMERO DE NUEVA CAJA:');
+    if (nuevaCaja && nuevaCaja.trim()) {
+      cajaActiva = nuevaCaja.trim().toUpperCase();
+      sessionStorage.setItem('placas_caja_sesion', cajaActiva);
+      document.getElementById('cajaIndicadorTxt').textContent = cajaActiva;
+      document.querySelector('.header-info p').textContent =
+        `CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaActiva}`;
+      toast(`✅ CAJA CERRADA — NUEVA CAJA: ${cajaActiva}`);
+    } else {
+      document.querySelector('.header-info p').textContent = `CAPTURISTA: ${capturistaActivo}`;
+      toast('✅ CAJA CERRADA — DEFINA EL NÚMERO DE CAJA EN EL ÍCONO 📦');
+    }
+
+    // Enfocar el campo placa para empezar a capturar
+    document.getElementById('inputPlaca').focus();
+  };
+
+  // ─── IMPRIMIR ───
+  window.imprimirTabla = function() {
+    if (cajaDocs.length === 0) { toast('⚠️ NO HAY REGISTROS PARA IMPRIMIR', true); return; }
+
+    const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const hora  = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+    // Construir filas HTML limpias
+    let filas = '';
+    cajaDocs.forEach((r, i) => {
+      const opLabel = {'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Denuncia','0placas_den':'Solo Den.'}[r.placaOpcion] || r.placaOpcion;
+      const tipoLabel = r.tipoVehiculo === 'moto' ? 'MOTO' : 'VEHÍCULO';
+      const bg = (i % 2 === 1) ? '#f7f7f7' : '#ffffff';
+      filas += `<tr style="background:${bg}">
+        <td style="text-align:center">${i+1}</td>
+        <td>${r.folio}</td>
+        <td style="font-weight:bold;letter-spacing:1px">${r.placa}</td>
+        <td>${tipoLabel}</td>
+        <td>${opLabel}</td>
+        <td>${r.propietario}</td>
+        <td>${r.cajero}</td>
+        <td>${r.fecha}</td>
+        <td>${r.denuncia || '—'}</td>
+      </tr>`;
+    });
+
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte Caja ${cajaActiva}</title>
+  <style>
+    @page { size: letter portrait; margin: 8mm 10mm; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; background: #fff; color: #000; }
+    .encabezado { text-align:center; border-bottom: 1px solid #aaa; padding-bottom:5mm; margin-bottom:4mm; }
+    .encabezado h2 { font-size:12pt; font-weight:bold; letter-spacing:1px; color:#000; margin-bottom:3px; }
+    .encabezado p  { font-size:7.5pt; color:#333; }
+    table { width:100%; border-collapse:collapse; font-size:7pt; table-layout:fixed; }
+    thead tr { background:#eeeeee; }
+    th { padding:3px 4px; font-size:6.5pt; font-weight:bold; color:#000;
+         border:0.5px solid #bbb; text-align:left; white-space:nowrap; overflow:hidden; }
+    td { padding:2px 4px; border:0.5px solid #ddd; color:#000;
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; }
+    th:nth-child(1),td:nth-child(1){ width:4%;  text-align:center; }
+    th:nth-child(2),td:nth-child(2){ width:9%;  }
+    th:nth-child(3),td:nth-child(3){ width:10%; }
+    th:nth-child(4),td:nth-child(4){ width:9%;  }
+    th:nth-child(5),td:nth-child(5){ width:9%;  }
+    th:nth-child(6),td:nth-child(6){ width:25%; }
+    th:nth-child(7),td:nth-child(7){ width:11%; }
+    th:nth-child(8),td:nth-child(8){ width:10%; }
+    th:nth-child(9),td:nth-child(9){ width:14%; }
+  </style>
+</head>
+<body>
+  <div class="encabezado">
+    <h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
+    <p>CAPTURISTA: ${capturistaActivo} &nbsp;|&nbsp; CAJA: ${cajaActiva} &nbsp;|&nbsp; FECHA: ${fecha} &nbsp;|&nbsp; HORA: ${hora} &nbsp;|&nbsp; TOTAL REGISTROS: ${cajaDocs.length}</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>FOLIO</th><th>PLACA</th><th>TIPO</th><th>PLACAS</th>
+        <th>PROPIETARIO</th><th>CAJERO</th><th>FECHA BAJA</th><th>DENUNCIA</th>
+      </tr>
+    </thead>
+    <tbody>${filas}</tbody>
+  </table>
+</body>
+</html>`);
+    ventana.document.close();
+    ventana.focus();
+    setTimeout(() => { ventana.print(); ventana.close(); }, 500);
+  };
+
+  // ─── NUEVA CAPTURA ───
+  window.nuevaCaptura = function() {
+    // tabla siempre visible
+    document.getElementById('inputPlaca').focus();
+  };
+
+  // ─── ABRIR MODAL CAJAS DEL CAPTURISTA ───
+  window.abrirModalCajas = async function() {
+    const lista = document.getElementById('listaCajas');
+    lista.innerHTML = '<div style="color:var(--text2);text-align:center;padding:2rem;">⏳ Cargando cajas...</div>';
+    document.getElementById('modalCajas').classList.add('open');
+    try {
+      // Obtener todos los docs del capturista activo
+      const snap = await getDocs(query(col, where('capturista','==', capturistaActivo), orderBy('createdAt','desc')));
+      const docs = snap.docs.map(d => ({docId:d.id,...d.data()}));
+      // Agrupar por caja
+      const cajas = {};
+      docs.forEach(d => {
+        if (!cajas[d.caja]) cajas[d.caja] = [];
+        cajas[d.caja].push(d);
+      });
+      if (Object.keys(cajas).length === 0) {
+        lista.innerHTML = '<div style="color:var(--text2);text-align:center;padding:2rem;">Sin cajas registradas</div>';
+        return;
+      }
+      lista.innerHTML = '';
+      Object.entries(cajas).forEach(([caja, regs]) => {
+        const fechas = [...new Set(regs.map(r=>r.fechaCaptura))].join(', ');
+        const div = document.createElement('div');
+        div.className = 'caja-item';
+        div.innerHTML = `
+          <div class="caja-item-num">📦 ${caja}</div>
+          <div class="caja-item-info"><strong>${regs.length} registros</strong> — Fecha(s): ${fechas}</div>
+          <span class="caja-item-count">${regs.length}</span>
+          <button class="btn-edit" onclick="verCaja('${caja}')">📋 VER / EDITAR</button>`;
+        lista.appendChild(div);
+      });
+    } catch(e) {
+      lista.innerHTML = '<div style="color:var(--danger);text-align:center;padding:2rem;">❌ Error al cargar cajas</div>';
+      console.error(e);
+    }
+  };
+
+  // ─── VER CAJA EN MODAL ───
+  let cajaViendo = null;
+  let docsViendo = [];
+
+  window.verCaja = async function(numCaja) {
+    document.getElementById('modalCajas').classList.remove('open');
+    document.getElementById('verCajaTitulo').textContent = `📋 CAJA ${numCaja}`;
+    document.getElementById('verCajaInfo').textContent = `Capturista: ${capturistaActivo}`;
+    document.getElementById('verCajaBody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text2);">⏳ Cargando...</td></tr>';
+    document.getElementById('modalVerCaja').classList.add('open');
+    cajaViendo = numCaja;
+    try {
+      const snap = await getDocs(query(col,
+        where('capturista','==',capturistaActivo),
+        where('caja','==',numCaja),
+        orderBy('folioNum','asc')));
+      docsViendo = snap.docs.map(d=>({docId:d.id,...d.data()}));
+      renderTablaVer();
+    } catch(e) {
+      document.getElementById('verCajaBody').innerHTML = '<tr><td colspan="11" style="color:var(--danger);text-align:center;padding:2rem;">❌ Error</td></tr>';
+    }
+  };
+
+  function renderTablaVer() {
+    const tbody = document.getElementById('verCajaBody');
+    tbody.innerHTML = '';
+    if (docsViendo.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text2);">Sin registros</td></tr>';
+      return;
+    }
+    document.getElementById('verCajaInfo').textContent =
+      `Capturista: ${capturistaActivo} | ${docsViendo.length} registros`;
+    docsViendo.forEach((r, i) => {
+      const tipoLabel = r.tipoVehiculo==='moto' ? '🏍️ MOTO' : '🚗 VEH.';
+      const opLabel = {'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Den.','0placas_den':'Solo Den.'}[r.placaOpcion]||r.placaOpcion;
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-docid', r.docId);
+      tr.innerHTML = `
+        <td class="td-num">${i+1}</td>
+        <td class="td-folio">${r.folio}</td>
+        <td class="td-placa">${r.placa}</td>
+        <td class="td-tipo">${tipoLabel}</td>
+        <td class="td-num">${opLabel}</td>
+        <td class="td-prop">${r.propietario}</td>
+        <td class="td-prop">${r.cajero||'—'}</td>
+        <td class="td-hora">${r.fecha}</td>
+        <td class="td-hora">${r.hora}</td>
+        <td class="td-den">${r.denuncia||'—'}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn-edit" onclick="editarRegistro('${r.docId}','ver')">✏️ EDIT</button>
+          <button class="btn-del"  onclick="borrarRegistro('${r.docId}','ver','${r.placa}')">🗑️</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.cerrarVerCaja = function() {
+    document.getElementById('modalVerCaja').classList.remove('open');
+    cajaViendo = null; docsViendo = [];
+  };
+
+  // ─── EDITAR REGISTRO ───
+  window.editarRegistro = function(docId, origen) {
+    // Buscar el doc en cajaDocs (activa) o docsViendo (ver)
+    const lista = origen==='activa' ? cajaDocs : docsViendo;
+    const reg = lista.find(r => r.docId === docId);
+    if (!reg) { toast('⚠️ REGISTRO NO ENCONTRADO', true); return; }
+    // Convertir fecha dd/mm/yyyy → yyyy-mm-dd para input date
+    const partes = reg.fecha.split('/');
+    const fechaISO = partes.length===3 ? `${partes[2]}-${partes[1]}-${partes[0]}` : '';
+    document.getElementById('editPlaca').value       = reg.placa || '';
+    document.getElementById('editFecha').value       = fechaISO;
+    document.getElementById('editPropietario').value = reg.propietario || '';
+    document.getElementById('editCajero').value      = reg.cajero || '';
+    document.getElementById('editDenuncia').value    = reg.denuncia || '';
+    document.getElementById('editDocId').value       = docId;
+    document.getElementById('editOrigen').value      = origen;
+    document.getElementById('modalEditReg').classList.add('open');
+  };
+
+  // ─── GUARDAR EDICIÓN ───
+  window.guardarEdicion = async function() {
+    const docId  = document.getElementById('editDocId').value;
+    const origen = document.getElementById('editOrigen').value;
+    const placa  = document.getElementById('editPlaca').value.trim().toUpperCase();
+    const prop   = document.getElementById('editPropietario').value.trim().toUpperCase();
+    const cajero = document.getElementById('editCajero').value.trim().toUpperCase();
+    const den    = document.getElementById('editDenuncia').value.trim().toUpperCase();
+    const fechaVal = document.getElementById('editFecha').value;
+    if (!placa || !prop || !fechaVal) { toast('⚠️ PLACA, PROPIETARIO Y FECHA SON OBLIGATORIOS', true); return; }
+    const [fy,fm,fd] = fechaVal.split('-');
+    const fechaFmt = `${fd}/${fm}/${fy}`;
+    try {
+      await updateDoc(doc(db, 'placas', docId), {
+        placa, propietario:prop, cajero, denuncia:den, fecha:fechaFmt,
+        fechaISO: new Date(fechaVal).toISOString(),
+        timestamp: new Date(fechaVal).getTime()
+      });
+      // Actualizar lista local
+      const actualizar = (lista) => {
+        const idx = lista.findIndex(r=>r.docId===docId);
+        if (idx>-1) { lista[idx] = {...lista[idx], placa, propietario:prop, cajero, denuncia:den, fecha:fechaFmt}; }
+      };
+      if (origen==='activa') {
+        actualizar(cajaDocs);
+        // Redibujar tabla activa
+        const tbody = document.getElementById('tablaCajaBody');
+        tbody.innerHTML = '';
+        cajaDocs.forEach((r,i) => agregarFilaTabla(r, i+1));
+      } else {
+        actualizar(docsViendo);
+        renderTablaVer();
+      }
+      document.getElementById('modalEditReg').classList.remove('open');
+      toast('✅ REGISTRO ACTUALIZADO');
+    } catch(e) {
+      toast('❌ ERROR AL ACTUALIZAR: '+e.message, true);
+      console.error(e);
+    }
+  };
+
+  // ─── BORRAR REGISTRO ───
+  window.borrarRegistro = async function(docId, origen, placa) {
+    if (!confirm(`¿BORRAR EL REGISTRO DE LA PLACA ${placa}?\nEsta acción no se puede deshacer.`)) return;
+    try {
+      await deleteDoc(doc(db, 'placas', docId));
+      if (origen==='activa') {
+        cajaDocs = cajaDocs.filter(r=>r.docId!==docId);
+        misCapturas = cajaDocs.length;
+        document.getElementById('statMisCapturas').textContent = misCapturas;
+        document.getElementById('badgeCount').textContent = `${misCapturas} registro${misCapturas!==1?'s':''}`;
+        const tbody = document.getElementById('tablaCajaBody');
+        tbody.innerHTML = '';
+        if (cajaDocs.length===0) {
+          tbody.innerHTML = '<tr id="trVacia"><td colspan="11" style="text-align:center;padding:3rem;color:var(--text2);font-size:0.9rem;">📋 LOS REGISTROS APARECERÁN AQUÍ CONFORME SE CAPTUREN</td></tr>';
+        } else {
+          cajaDocs.forEach((r,i) => agregarFilaTabla(r, i+1));
+        }
+      } else {
+        docsViendo = docsViendo.filter(r=>r.docId!==docId);
+        renderTablaVer();
+      }
+      toast(`✅ REGISTRO ${placa} ELIMINADO`);
+    } catch(e) {
+      toast('❌ ERROR AL BORRAR: '+e.message, true);
+    }
+  };
+
+  // ─── IMPRIMIR CAJA VISTA ───
+  window.imprimirCajaVer = function() {
+    if (docsViendo.length===0) { toast('⚠️ SIN REGISTROS', true); return; }
+    const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const hora  = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    let filas = '';
+    docsViendo.forEach((r,i) => {
+      const opLabel = {'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Denuncia','0placas_den':'Solo Den.'}[r.placaOpcion]||r.placaOpcion;
+      const tipoLabel = r.tipoVehiculo==='moto'?'MOTO':'VEHÍCULO';
+      const bg = i%2===1?'#f7f7f7':'#ffffff';
+      filas += `<tr style="background:${bg}">
+        <td style="text-align:center">${i+1}</td>
+        <td>${r.folio}</td>
+        <td style="font-weight:bold;letter-spacing:1px">${r.placa}</td>
+        <td>${tipoLabel}</td>
+        <td>${opLabel}</td>
+        <td>${r.propietario}</td>
+        <td>${r.cajero||'—'}</td>
+        <td>${r.fecha}</td>
+        <td>${r.denuncia||'—'}</td>
+      </tr>`;
+    });
+    const v = window.open('','_blank');
+    v.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+      <title>Caja ${cajaViendo}</title>
+      <style>
+        @page{size:letter portrait;margin:8mm 10mm}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial,sans-serif;background:#fff;color:#000}
+        .enc{text-align:center;border-bottom:1px solid #aaa;padding-bottom:4mm;margin-bottom:3mm}
+        .enc h2{font-size:12pt;font-weight:bold;letter-spacing:1px}
+        .enc p{font-size:7.5pt;color:#333}
+        table{width:100%;border-collapse:collapse;font-size:7pt;table-layout:fixed}
+        thead tr{background:#eee}
+        th{padding:3px 4px;font-size:6.5pt;font-weight:bold;border:0.5px solid #bbb;text-align:left;white-space:nowrap}
+        td{padding:2px 4px;border:0.5px solid #ddd;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        th:nth-child(1),td:nth-child(1){width:4%;text-align:center}
+        th:nth-child(2),td:nth-child(2){width:9%}
+        th:nth-child(3),td:nth-child(3){width:10%;font-weight:bold}
+        th:nth-child(4),td:nth-child(4){width:9%}
+        th:nth-child(5),td:nth-child(5){width:9%}
+        th:nth-child(6),td:nth-child(6){width:26%}
+        th:nth-child(7),td:nth-child(7){width:12%}
+        th:nth-child(8),td:nth-child(8){width:9%}
+        th:nth-child(9),td:nth-child(9){width:12%}
+      </style></head><body>
+      <div class="enc">
+        <h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
+        <p>CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaViendo} | FECHA IMP: ${fecha} ${hora} | REGISTROS: ${docsViendo.length}</p>
+      </div>
+      <table><thead><tr>
+        <th>#</th><th>FOLIO</th><th>PLACA</th><th>TIPO</th><th>PLACAS</th>
+        <th>PROPIETARIO</th><th>CAJERO</th><th>FECHA BAJA</th><th>DENUNCIA</th>
+      </tr></thead><tbody>${filas}</tbody></table>
+    </body></html>`);
+    v.document.close(); v.focus();
+    setTimeout(()=>{ v.print(); v.close(); },500);
+  };
 
   // ─── TOAST ───
   window.toast = function(msg, error=false) {
@@ -598,8 +1494,37 @@
     setTimeout(() => t.remove(), dur + 300);
   };
 
+  // ─── INICIALIZACIÓN ───
+  window.addEventListener('DOMContentLoaded', () => {
+    // Siempre pedir capturista al inicio de sesión
+    const capSesion = sessionStorage.getItem('placas_capturista_sesion') || '';
+
+    if (capSesion) {
+      // Sesión activa (recarga)
+      capturistaActivo = capSesion;
+      cajaActiva   = sessionStorage.getItem('placas_caja_sesion') || '';
+      cajeroActivo = sessionStorage.getItem('placas_cajero_sesion') || localStorage.getItem('placas_cajero_activo') || '';
+      document.getElementById('capturistaModal').classList.remove('open');
+      if (cajaActiva)   document.getElementById('cajaIndicadorTxt').textContent   = cajaActiva;
+      if (cajeroActivo) document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
+      document.querySelector('.header-info p').textContent =
+        `CAPTURISTA: ${capturistaActivo}${cajaActiva ? ' | CAJA: '+cajaActiva : ''}`;
+      document.getElementById('inputPlaca').focus();
+    } else {
+      // Nueva sesión → pedir capturista
+      document.getElementById('capturistaModal').classList.add('open');
+      setTimeout(() => document.getElementById('inputCapturistaModal').focus(), 300);
+    }
+  });
+
   // ENTER para registrar
-  document.addEventListener('keydown', e => { if(e.key==='Enter') window.registrar(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' &&
+        document.activeElement !== document.getElementById('inputCajaModal') &&
+        document.activeElement !== document.getElementById('inputCapturistaModal')) {
+      window.registrar();
+    }
+  });
 </script>
 </body>
 </html>
