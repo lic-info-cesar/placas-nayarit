@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Administrador — Sistema de Bajas Nayarit</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:#0a0e1a; --surface:#111827; --surface2:#1a2235;
-    --border:#1e3a5f; --accent:#00c8ff; --accent2:#0066cc;
-    --success:#00e676; --warning:#ffab00; --danger:#ff3d57;
-    --text:#e2e8f0; --text2:#94a3b8;
-  }
+  :root{--bg:#0a0e1a;--surface:#111827;--surface2:#1a2235;--border:#1e3a5f;--accent:#00c8ff;--accent2:#0066cc;--success:#00e676;--warning:#ffab00;--danger:#ff3d57;--text:#e2e8f0;--text2:#94a3b8;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
     background-image:radial-gradient(ellipse at 20% 20%,rgba(0,100,200,0.08) 0%,transparent 50%),
@@ -25,8 +21,7 @@
   .header-escudo{width:70px;height:70px;background:radial-gradient(circle,#1e3a6e 0%,#0d1b2a 70%);
     border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:2rem;flex-shrink:0;box-shadow:0 0 20px rgba(0,200,255,0.3);margin:0.8rem 0;}
-  .header-info h1{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;
-    color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+  .header-info h1{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
   .header-info p{font-size:0.8rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase;}
   .header-clock{margin-left:auto;text-align:right;}
   .clock-time{font-family:'Share Tech Mono',monospace;font-size:2rem;color:var(--accent);text-shadow:0 0 10px rgba(0,200,255,0.5);}
@@ -38,10 +33,21 @@
   .fb-status.conectando{border-color:var(--warning);color:var(--warning);background:rgba(255,171,0,0.08);}
   .fb-dot{width:8px;height:8px;border-radius:50%;background:currentColor;}
 
-  .main-layout{display:grid;grid-template-columns:1fr;gap:1.5rem;padding:1.5rem;}
+  /* NAV TABS */
+  .nav-tabs{display:flex;gap:0.5rem;padding:0.8rem 1.5rem;background:var(--surface);border-bottom:1px solid var(--border);}
+  .nav-tab{padding:0.5rem 1.2rem;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.9rem;
+    font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid var(--border);
+    color:var(--text2);background:transparent;transition:all 0.2s;text-transform:uppercase;}
+  .nav-tab:hover{border-color:var(--accent);color:var(--accent);}
+  .nav-tab.active{background:rgba(0,200,255,0.1);border-color:var(--accent);color:var(--accent);}
+
+  /* SECCIONES */
+  .seccion{display:none;padding:1.5rem;}
+  .seccion.active{display:block;}
+
+  .main-layout{display:grid;grid-template-columns:1fr;gap:1.5rem;}
   .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
-    padding:1rem;text-align:center;position:relative;overflow:hidden;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;position:relative;overflow:hidden;}
   .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
   .stat-card.blue::after{background:var(--accent);}
   .stat-card.green::after{background:var(--success);}
@@ -56,38 +62,28 @@
   .stat-card.purple .stat-num{color:#c840ff;}
   .stat-label{font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-top:0.3rem;}
 
-  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
-    overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
-  .panel-header{background:linear-gradient(90deg,var(--surface2),var(--surface));
-    padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
-  .panel-header h2{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;
-    letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
-  .panel-icon{width:32px;height:32px;background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.3);
-    border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+  .panel-header{background:linear-gradient(90deg,var(--surface2),var(--surface));padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+  .panel-header h2{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
+  .panel-icon{width:32px;height:32px;background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
   .panel-body{padding:1.5rem;}
 
-  /* TABLE CONTROLS */
   .table-controls{display:flex;gap:0.8rem;margin-bottom:1rem;align-items:center;flex-wrap:wrap;}
   .search-box{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);
-    border-radius:8px;padding:0.6rem 1rem;color:var(--text);
-    font-family:'Share Tech Mono',monospace;font-size:0.9rem;outline:none;}
+    border-radius:8px;padding:0.6rem 1rem;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.9rem;outline:none;text-transform:uppercase;}
   .search-box:focus{border-color:var(--accent);}
-  .btn-action{padding:0.6rem 1rem;border-radius:8px;font-family:'Rajdhani',sans-serif;
-    font-size:0.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;border:1px solid;
-    transition:all 0.2s;text-transform:uppercase;}
+  .btn-action{padding:0.6rem 1rem;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;border:1px solid;transition:all 0.2s;text-transform:uppercase;}
   .btn-print{background:rgba(0,230,118,0.1);border-color:var(--success);color:var(--success);}
   .btn-print:hover{background:rgba(0,230,118,0.2);}
   .btn-export{background:rgba(0,200,255,0.1);border-color:var(--accent);color:var(--accent);}
   .btn-export:hover{background:rgba(0,200,255,0.2);}
-  .btn-danger{background:rgba(255,61,87,0.1);border-color:var(--danger);color:var(--danger);}
-  .btn-danger:hover{background:rgba(255,61,87,0.2);}
+  .btn-warning{background:rgba(255,171,0,0.1);border-color:var(--warning);color:var(--warning);}
+  .btn-warning:hover{background:rgba(255,171,0,0.2);}
 
   .table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);}
   table{width:100%;border-collapse:collapse;font-size:0.86rem;}
   thead{background:var(--surface2);}
-  th{padding:0.85rem 0.8rem;text-align:left;font-family:'Rajdhani',sans-serif;
-    font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);
-    border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+  th{padding:0.85rem 0.8rem;text-align:left;font-family:'Rajdhani',sans-serif;font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
   th:hover{color:#fff;}
   td{padding:0.75rem 0.8rem;border-bottom:1px solid rgba(30,58,95,0.4);vertical-align:middle;}
   tr:last-child td{border-bottom:none;}
@@ -98,112 +94,117 @@
   .badge-2{background:rgba(255,171,0,0.1);color:var(--warning);border:1px solid rgba(255,171,0,0.3);}
   .badge-1{background:rgba(0,230,118,0.1);color:var(--success);border:1px solid rgba(0,230,118,0.3);}
   .badge-0{background:rgba(255,61,87,0.1);color:var(--danger);border:1px solid rgba(255,61,87,0.3);}
-  .btn-del{background:none;border:1px solid rgba(255,61,87,0.3);color:var(--danger);
-    padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.2s;}
+  .btn-del{background:none;border:1px solid rgba(255,61,87,0.3);color:var(--danger);padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.2s;}
   .btn-del:hover{background:rgba(255,61,87,0.1);border-color:var(--danger);}
-  .btn-edit{background:none;border:1px solid var(--accent);color:var(--accent);
-    width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.2s;margin-right:4px;}
+  .btn-edit{background:none;border:1px solid var(--accent);color:var(--accent);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.2s;margin-right:4px;}
   .btn-edit:hover{background:rgba(0,200,255,0.1);}
   .empty-state{text-align:center;padding:3rem;color:var(--text2);}
   .empty-state .icon{font-size:3rem;margin-bottom:1rem;opacity:0.3;}
   @keyframes rowIn{from{opacity:0;transform:translateX(-20px);background:rgba(0,200,255,0.08)}to{opacity:1;transform:translateX(0);background:transparent}}
   .row-new{animation:rowIn 0.5s ease;}
 
-  /* TOAST */
   .toast-container{position:fixed;bottom:2rem;right:2rem;display:flex;flex-direction:column;gap:0.8rem;z-index:9999;}
-  .toast{background:var(--surface2);border-left:4px solid var(--success);border-radius:8px;
-    padding:0.9rem 1.2rem;font-size:0.9rem;box-shadow:0 8px 30px rgba(0,0,0,0.5);
-    animation:slideIn 0.3s ease,fadeOut 0.3s ease 2.7s forwards;min-width:260px;display:flex;align-items:center;gap:0.8rem;}
+  .toast{background:var(--surface2);border-left:4px solid var(--success);border-radius:8px;padding:0.9rem 1.2rem;font-size:0.9rem;box-shadow:0 8px 30px rgba(0,0,0,0.5);animation:slideIn 0.3s ease,fadeOut 0.3s ease 2.7s forwards;min-width:260px;display:flex;align-items:center;gap:0.8rem;}
   .toast.error{border-left-color:var(--danger);}
   @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
   @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 
-  /* MODALES */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;}
   .modal-overlay.open{display:flex;}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;
-    width:560px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.6);overflow:hidden;animation:modalIn 0.25s ease;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:560px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.6);overflow:hidden;animation:modalIn 0.25s ease;}
+  .modal-xl{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:92vw;max-width:1100px;max-height:90vh;box-shadow:0 20px 60px rgba(0,0,0,0.7);display:flex;flex-direction:column;animation:modalIn 0.25s ease;}
+  .modal-xl .modal-body{overflow-y:auto;flex:1;padding:1.2rem 1.5rem;}
+  .modal-xl .modal-foot{padding:0.8rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.8rem;justify-content:flex-end;flex-shrink:0;background:var(--surface2);}
   @keyframes modalIn{from{transform:scale(0.92) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-  .modal-head{background:linear-gradient(90deg,var(--surface2),var(--surface));
-    padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .modal-head{background:linear-gradient(90deg,var(--surface2),var(--surface));padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
   .modal-head h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--success);}
   .modal-close{background:none;border:none;color:var(--text2);font-size:1.3rem;cursor:pointer;padding:0.2rem 0.5rem;border-radius:6px;transition:all 0.2s;}
   .modal-close:hover{color:var(--danger);background:rgba(255,61,87,0.1);}
   .modal-body{padding:1.5rem;}
   .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:flex-end;}
-  .btn-cancel{padding:0.7rem 1.5rem;background:none;border:1px solid var(--border);border-radius:8px;
-    color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:600;
-    letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-cancel{padding:0.7rem 1.5rem;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:600;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
   .btn-cancel:hover{border-color:var(--text2);color:var(--text);}
-  .btn-save{padding:0.7rem 1.8rem;background:var(--accent);border:none;border-radius:8px;
-    color:#000;font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;
-    letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-save{padding:0.7rem 1.8rem;background:var(--accent);border:none;border-radius:8px;color:#000;font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
   .btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,200,255,0.3);}
+  .btn-green{padding:0.5rem 1.2rem;background:rgba(0,230,118,0.15);border:1px solid var(--success);border-radius:8px;color:var(--success);font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-green:hover{background:rgba(0,230,118,0.25);}
+  .btn-cerrar{background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:0.5rem 1.2rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;font-size:0.9rem;transition:all 0.15s;}
+  .btn-cerrar:hover{border-color:var(--accent);color:var(--accent);}
 
-  /* EDIT FORM */
   .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
   .form-group{margin:0;}
   label{display:block;font-size:0.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:0.4rem;}
-  input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
-    padding:0.65rem 0.9rem;color:var(--text);font-family:'Share Tech Mono',monospace;
-    font-size:0.9rem;letter-spacing:1px;transition:all 0.2s;outline:none;}
+  input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.65rem 0.9rem;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.9rem;letter-spacing:1px;transition:all 0.2s;outline:none;text-transform:uppercase;}
   input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,255,0.1);}
   select option{background:var(--surface);}
   input[type="date"]{color-scheme:dark;}
 
-  /* REPORTE */
   .report-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
-  .report-type-btn{padding:1.2rem 1rem;background:var(--bg);border:2px solid var(--border);
-    border-radius:10px;color:var(--text2);font-family:'Rajdhani',sans-serif;
-    font-size:0.95rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;
-    text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
+  .report-type-btn{padding:1.2rem 1rem;background:var(--bg);border:2px solid var(--border);border-radius:10px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
   .report-type-btn .icon{font-size:1.8rem;}
   .report-type-btn:hover{border-color:var(--success);color:var(--text);background:rgba(0,230,118,0.05);}
   .report-type-btn.active{border-color:var(--success);color:var(--success);background:rgba(0,230,118,0.08);}
   .report-options{display:none;}
   .report-options.visible{display:block;}
   .date-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
-  .btn-do-print{padding:0.7rem 1.8rem;background:linear-gradient(135deg,#00a854,var(--success));
-    border:none;border-radius:8px;color:#000;font-family:'Rajdhani',sans-serif;
-    font-size:0.9rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-do-print{padding:0.7rem 1.8rem;background:linear-gradient(135deg,#00a854,var(--success));border:none;border-radius:8px;color:#000;font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
   .btn-do-print:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,230,118,0.3);}
 
-  /* PREVIEW */
   .preview-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;flex-direction:column;}
   .preview-overlay.open{display:flex;}
-  .preview-toolbar{display:flex;align-items:center;justify-content:space-between;
-    padding:0.7rem 1.5rem;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0;}
-  .preview-toolbar h3{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-    letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
+  .preview-toolbar{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1.5rem;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .preview-toolbar h3{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
   .preview-toolbar-btns{display:flex;gap:0.8rem;align-items:center;}
-  .btn-preview-print{background:var(--success);color:#000;border:none;padding:0.5rem 1.4rem;
-    border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:700;
-    letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-preview-print{background:var(--success);color:#000;border:none;padding:0.5rem 1.4rem;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
   .btn-preview-print:hover{filter:brightness(1.15);transform:translateY(-1px);}
-  .btn-preview-close{background:rgba(255,61,87,0.15);color:var(--danger);border:1px solid var(--danger);
-    padding:0.5rem 1.1rem;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;
-    font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-preview-close{background:rgba(255,61,87,0.15);color:var(--danger);border:1px solid var(--danger);padding:0.5rem 1.1rem;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
   .btn-preview-close:hover{background:rgba(255,61,87,0.3);}
-  .preview-frame-wrap{flex:1;overflow:auto;display:flex;justify-content:flex-start;
-    align-items:flex-start;padding:1.2rem;background:#3a3a3a;}
+  .preview-frame-wrap{flex:1;overflow:auto;display:flex;justify-content:flex-start;align-items:flex-start;padding:1.2rem;background:#3a3a3a;}
   #previewFrame{border:none;background:#fff;box-shadow:0 8px 40px rgba(0,0,0,0.6);border-radius:2px;flex-shrink:0;}
 
-  /* PAGINACIÓN */
   .pagination{display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;}
-  .page-btn{padding:0.4rem 0.8rem;background:var(--bg);border:1px solid var(--border);
-    border-radius:6px;color:var(--text2);font-family:'Share Tech Mono',monospace;
-    font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+  .page-btn{padding:0.4rem 0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
   .page-btn:hover{border-color:var(--accent);color:var(--accent);}
   .page-btn.active{background:rgba(0,200,255,0.1);border-color:var(--accent);color:var(--accent);}
   .page-info{font-size:0.8rem;color:var(--text2);font-family:'Share Tech Mono',monospace;}
 
-  /* REAL-TIME BADGE */
-  .live-badge{display:inline-flex;align-items:center;gap:0.4rem;
-    background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-    border-radius:20px;padding:0.25rem 0.8rem;font-size:0.72rem;
-    font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:var(--success);margin-left:auto;}
+  .live-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:20px;padding:0.25rem 0.8rem;font-size:0.72rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:var(--success);margin-left:auto;}
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.2s infinite;}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+  /* CAPTURISTAS EN VIVO */
+  .cap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+  .cap-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:all 0.3s;}
+  .cap-card.activo{border-color:var(--success);box-shadow:0 0 15px rgba(0,230,118,0.15);}
+  .cap-card-header{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;}
+  .cap-avatar{width:40px;height:40px;border-radius:50%;background:rgba(0,200,255,0.15);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+  .cap-nombre{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:1px;color:var(--text);}
+  .cap-estado{font-size:0.72rem;color:var(--text2);}
+  .cap-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;}
+  .cap-stat{background:var(--surface2);border-radius:6px;padding:0.5rem;text-align:center;}
+  .cap-stat-num{font-family:'Share Tech Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);}
+  .cap-stat-lbl{font-size:0.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+  .cap-ultimo{margin-top:0.7rem;font-size:0.78rem;color:var(--text2);padding:0.5rem;background:rgba(0,200,255,0.04);border-radius:6px;border-left:2px solid var(--accent);}
+  .cap-ultimo strong{color:var(--accent);}
+
+  /* GRÁFICAS */
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  .charts-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:1.5rem;}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;}
+  .chart-title{font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+  .chart-wrap{position:relative;height:220px;}
+  .periodo-btns{display:flex;gap:0.5rem;margin-bottom:1rem;}
+  .periodo-btn{padding:0.35rem 0.9rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .periodo-btn.active{background:rgba(0,200,255,0.1);border-color:var(--accent);color:var(--accent);}
+
+  /* ABRIR CAJA MODAL */
+  .caja-tabla-wrap{overflow:auto;border-radius:8px;border:1px solid var(--border);max-height:55vh;}
+  .caja-tabla{width:100%;border-collapse:collapse;font-size:0.82rem;font-family:'Share Tech Mono',monospace;}
+  .caja-tabla thead th{background:#003366;color:var(--accent);padding:0.7rem 0.8rem;text-align:left;font-size:0.72rem;border-right:1px solid rgba(0,200,255,0.2);white-space:nowrap;position:sticky;top:0;z-index:2;}
+  .caja-tabla tbody tr{border-bottom:1px solid var(--border);}
+  .caja-tabla tbody tr:nth-child(even){background:rgba(0,200,255,0.03);}
+  .caja-tabla tbody tr:hover{background:rgba(0,200,255,0.07);}
+  .caja-tabla td{padding:0.6rem 0.8rem;border-right:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -224,73 +225,163 @@
   </div>
 </header>
 
-<div class="main-layout">
+<!-- TABS DE NAVEGACIÓN -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="mostrarSeccion('secRegistros')">📊 Registros</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secCaja')">📦 Abrir Caja</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secCapturistas')">👤 Capturistas en Vivo</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secGraficas')">📈 Gráficas</button>
+</div>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-card blue">
-      <div class="stat-num" id="statTotal">—</div>
-      <div class="stat-label">Total Registros</div>
+<!-- ══════════════════════════════════════════════ -->
+<!-- SEC 1: REGISTROS -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="seccion active" id="secRegistros">
+  <div class="main-layout">
+    <div class="stats-row">
+      <div class="stat-card blue"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Registros</div></div>
+      <div class="stat-card green"><div class="stat-num" id="statHoy">—</div><div class="stat-label">Hoy</div></div>
+      <div class="stat-card yellow"><div class="stat-num" id="statPlacas">—</div><div class="stat-label">Placas Recibidas</div></div>
+      <div class="stat-card red"><div class="stat-num" id="statDenuncias">—</div><div class="stat-label">Denuncias</div></div>
+      <div class="stat-card purple"><div class="stat-num" id="statMotos">—</div><div class="stat-label">Motocicletas</div></div>
     </div>
-    <div class="stat-card green">
-      <div class="stat-num" id="statHoy">—</div>
-      <div class="stat-label">Hoy</div>
-    </div>
-    <div class="stat-card yellow">
-      <div class="stat-num" id="statPlacas">—</div>
-      <div class="stat-label">Placas Recibidas</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-num" id="statDenuncias">—</div>
-      <div class="stat-label">Denuncias</div>
-    </div>
-    <div class="stat-card purple">
-      <div class="stat-num" id="statMotos">—</div>
-      <div class="stat-label">Motocicletas</div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon">📊</div>
+        <h2>Registros en Tiempo Real</h2>
+        <div class="live-badge"><div class="live-dot"></div> EN VIVO</div>
+      </div>
+      <div class="panel-body">
+        <div class="table-controls">
+          <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar placa, propietario, caja, cajero..." oninput="renderTable()">
+          <button class="btn-action btn-print" onclick="openReportModal()">🖨 Reporte</button>
+          <button class="btn-action btn-export" onclick="exportCSV()">⬇ CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortBy('folio')">Folio ⇅</th>
+                <th onclick="sortBy('caja')">Caja ⇅</th>
+                <th onclick="sortBy('placa')">Placa ⇅</th>
+                <th onclick="sortBy('tipoVehiculo')">Tipo ⇅</th>
+                <th onclick="sortBy('propietario')">Propietario ⇅</th>
+                <th onclick="sortBy('cajero')">Cajero ⇅</th>
+                <th onclick="sortBy('capturista')">Capturista ⇅</th>
+                <th onclick="sortBy('fecha')">F. Baja ⇅</th>
+                <th>Denuncia</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState" style="display:none">
+            <div class="icon">🚗</div><p>Sin registros aún.</p>
+          </div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- TABLA PRINCIPAL -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- SEC 2: ABRIR CAJA -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="seccion" id="secCaja">
   <div class="panel">
     <div class="panel-header">
-      <div class="panel-icon">📊</div>
-      <h2>Registros en Tiempo Real</h2>
+      <div class="panel-icon">📦</div>
+      <h2>Abrir Caja por Número</h2>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:1rem;align-items:flex-end;max-width:500px;margin-bottom:1.5rem;">
+        <div style="flex:1;">
+          <label>📦 Número de Caja</label>
+          <input type="text" id="inputBuscarCaja" placeholder="EJ. CAJA-01" maxlength="20"
+            style="text-transform:uppercase;font-size:1.1rem;letter-spacing:2px;"
+            onkeydown="if(event.key==='Enter') buscarCaja()">
+        </div>
+        <button class="btn-save" style="flex-shrink:0;padding:0.65rem 1.5rem;" onclick="buscarCaja()">📂 ABRIR</button>
+      </div>
+      <div id="cajaBuscarError" style="display:none;color:var(--danger);margin-bottom:1rem;padding:0.7rem 1rem;background:rgba(255,61,87,0.1);border:1px solid var(--danger);border-radius:8px;font-size:0.85rem;"></div>
+
+      <!-- Resultado caja -->
+      <div id="cajaResultado" style="display:none;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div id="cajaInfoHeader" style="flex:1;padding:0.6rem 1rem;background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.2);border-radius:8px;font-size:0.82rem;color:var(--text2);"></div>
+          <button class="btn-green" onclick="imprimirCajaAdmin()">🖨️ IMPRIMIR</button>
+        </div>
+        <div class="caja-tabla-wrap">
+          <table class="caja-tabla">
+            <thead>
+              <tr>
+                <th>#</th><th>Folio</th><th>Placa</th><th>Tipo</th><th>Placas</th>
+                <th>Propietario</th><th>Cajero</th><th>Capturista</th><th>Fecha Baja</th><th>Denuncia</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cajaAdminBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SEC 3: CAPTURISTAS EN VIVO -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="seccion" id="secCapturistas">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon">👤</div>
+      <h2>Capturistas en Tiempo Real</h2>
       <div class="live-badge"><div class="live-dot"></div> EN VIVO</div>
     </div>
     <div class="panel-body">
-      <div class="table-controls">
-        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar placa, propietario, caja, cajero..." oninput="renderTable()">
-        <button class="btn-action btn-print" onclick="openReportModal()">🖨 Reporte</button>
-        <button class="btn-action btn-export" onclick="exportCSV()">⬇ CSV</button>
-        <button class="btn-action btn-danger" onclick="clearAll()">🗑 Limpiar Todo</button>
+      <div class="cap-grid" id="capGrid">
+        <div style="color:var(--text2);text-align:center;padding:3rem;grid-column:1/-1;">Cargando capturistas...</div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th onclick="sortBy('folio')">Folio ⇅</th>
-              <th onclick="sortBy('caja')">Caja ⇅</th>
-              <th onclick="sortBy('placa')">Placa ⇅</th>
-              <th onclick="sortBy('tipoVehiculo')">Tipo ⇅</th>
-              <th onclick="sortBy('propietario')">Propietario ⇅</th>
-              <th onclick="sortBy('cajero')">Cajero ⇅</th>
-              <th onclick="sortBy('capturista')">Capturista ⇅</th>
-              <th onclick="sortBy('fecha')">F. Baja ⇅</th>
-              <th>Denuncia</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-        <div class="empty-state" id="emptyState" style="display:none">
-          <div class="icon">🚗</div>
-          <p>Sin registros aún.</p>
-        </div>
-      </div>
-      <div class="pagination" id="pagination"></div>
     </div>
   </div>
+</div>
 
+<!-- ══════════════════════════════════════════════ -->
+<!-- SEC 4: GRÁFICAS -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="seccion" id="secGraficas">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+    <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--text2);letter-spacing:1px;font-size:0.9rem;">PERÍODO:</span>
+    <div class="periodo-btns">
+      <button class="periodo-btn active" onclick="setPeriodo('semana',this)">📅 Esta Semana</button>
+      <button class="periodo-btn" onclick="setPeriodo('mes',this)">📆 Este Mes</button>
+      <button class="periodo-btn" onclick="setPeriodo('todo',this)">📊 Todo</button>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">📅 Capturas por Día</div>
+      <div class="chart-wrap"><canvas id="chartDias"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🚗 Vehículos vs 🏍️ Motos</div>
+      <div class="chart-wrap"><canvas id="chartTipos"></canvas></div>
+    </div>
+  </div>
+  <div class="charts-grid-3">
+    <div class="chart-card">
+      <div class="chart-title">📋 Opciones de Placas</div>
+      <div class="chart-wrap"><canvas id="chartOpciones"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">⚠️ Denuncias por Día</div>
+      <div class="chart-wrap"><canvas id="chartDenuncias"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">👤 Capturas por Capturista</div>
+      <div class="chart-wrap"><canvas id="chartCapturistas"></canvas></div>
+    </div>
+  </div>
 </div>
 
 <!-- Toast -->
@@ -305,44 +396,22 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="editDocId">
+      <input type="hidden" id="editOrigen">
       <div class="edit-grid">
-        <div class="form-group">
-          <label>🔢 Placa</label>
-          <input type="text" id="editPlaca" maxlength="10" style="text-transform:uppercase;text-align:center;font-size:1.2rem;letter-spacing:4px;color:var(--accent)">
-        </div>
-        <div class="form-group">
-          <label>📦 Caja</label>
-          <input type="text" id="editCaja" maxlength="20" style="text-transform:uppercase">
-        </div>
-        <div class="form-group">
-          <label>👤 Propietario</label>
-          <input type="text" id="editPropietario" style="font-family:'Exo 2',sans-serif;letter-spacing:0.5px">
-        </div>
-        <div class="form-group">
-          <label>📋 # Denuncia</label>
-          <input type="text" id="editDenuncia" style="font-family:'Exo 2',sans-serif;letter-spacing:0.5px" placeholder="Vacío si no aplica">
-        </div>
-        <div class="form-group">
-          <label>🧑‍💼 Cajero</label>
-          <input type="text" id="editCajero" style="font-family:'Exo 2',sans-serif;letter-spacing:0.5px">
-        </div>
-        <div class="form-group">
-          <label>💻 Capturista</label>
-          <input type="text" id="editCapturista" style="font-family:'Exo 2',sans-serif;letter-spacing:0.5px">
-        </div>
-        <div class="form-group">
-          <label>📅 Fecha de Baja</label>
-          <input type="date" id="editFecha">
-        </div>
-        <div class="form-group">
-          <label>🚦 Tipo de Vehículo</label>
+        <div class="form-group"><label>🔢 Placa</label><input type="text" id="editPlaca" maxlength="10" style="text-align:center;font-size:1.2rem;letter-spacing:4px;color:var(--accent)"></div>
+        <div class="form-group"><label>📦 Caja</label><input type="text" id="editCaja" maxlength="20"></div>
+        <div class="form-group"><label>👤 Propietario</label><input type="text" id="editPropietario"></div>
+        <div class="form-group"><label>📋 # Denuncia</label><input type="text" id="editDenuncia" placeholder="Vacío si no aplica"></div>
+        <div class="form-group"><label>🧑‍💼 Cajero</label><input type="text" id="editCajero"></div>
+        <div class="form-group"><label>💻 Capturista</label><input type="text" id="editCapturista"></div>
+        <div class="form-group"><label>📅 Fecha de Baja</label><input type="date" id="editFecha"></div>
+        <div class="form-group"><label>🚦 Tipo de Vehículo</label>
           <select id="editTipoVehiculo">
             <option value="vehiculo">🚗 Vehículo</option>
             <option value="moto">🏍️ Motocicleta</option>
           </select>
         </div>
-        <div class="form-group" style="grid-column:1/-1">
-          <label>🪪 Placas a Entregar</label>
+        <div class="form-group" style="grid-column:1/-1"><label>🪪 Placas a Entregar</label>
           <select id="editPlacaOpcion">
             <option value="2placas">2 Placas Completas</option>
             <option value="1placa_den1">1 Placa + Denuncia</option>
@@ -362,22 +431,13 @@
 <!-- MODAL REPORTE -->
 <div class="modal-overlay" id="reportModal">
   <div class="modal">
-    <div class="modal-head">
-      <h3>🖨 Imprimir Reporte</h3>
-      <button class="modal-close" onclick="closeReportModal()">✕</button>
-    </div>
+    <div class="modal-head"><h3>🖨 Imprimir Reporte</h3><button class="modal-close" onclick="closeReportModal()">✕</button></div>
     <div class="modal-body">
       <label style="margin-bottom:0.8rem;display:block">Tipo de Reporte</label>
       <div class="report-type-grid">
-        <button class="report-type-btn" id="typeFechas" onclick="setReportType('fechas')">
-          <span class="icon">📅</span><span>Por Rango de Fechas</span>
-        </button>
-        <button class="report-type-btn" id="typeCaja" onclick="setReportType('caja')">
-          <span class="icon">📦</span><span>Por Número de Caja</span>
-        </button>
-        <button class="report-type-btn" id="typeTodo" onclick="setReportType('todo')">
-          <span class="icon">📋</span><span>Todo el Registro</span>
-        </button>
+        <button class="report-type-btn" id="typeFechas" onclick="setReportType('fechas')"><span class="icon">📅</span><span>Por Rango de Fechas</span></button>
+        <button class="report-type-btn" id="typeCaja" onclick="setReportType('caja')"><span class="icon">📦</span><span>Por Número de Caja</span></button>
+        <button class="report-type-btn" id="typeTodo" onclick="setReportType('todo')"><span class="icon">📋</span><span>Todo el Registro</span></button>
       </div>
       <div class="report-options" id="optFechas">
         <div class="date-row">
@@ -386,9 +446,7 @@
         </div>
       </div>
       <div class="report-options" id="optCaja">
-        <div><label>Número de Caja</label>
-          <input type="text" id="rCaja" placeholder="Ej. CAJA-01 (vacío = todas)" style="text-transform:uppercase">
-        </div>
+        <div><label>Número de Caja</label><input type="text" id="rCaja" placeholder="Ej. CAJA-01 (vacío = todas)"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -410,15 +468,12 @@
       <button class="btn-preview-close" onclick="cerrarPreview()">✕ CERRAR</button>
     </div>
   </div>
-  <div class="preview-frame-wrap">
-    <iframe id="previewFrame" scrolling="yes"></iframe>
-  </div>
+  <div class="preview-frame-wrap"><iframe id="previewFrame" scrolling="yes"></iframe></div>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs }
+  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, where }
     from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -434,19 +489,40 @@
   const db  = getFirestore(app);
   const col = collection(db, 'placas');
 
-  // ─── ESTADO ───
   let allDocs = [];
   let sortCol = 'timestamp', sortDir = -1;
   let currentPage = 1;
   const pageSize = 25;
   let reportType = null;
+  let periodografica = 'semana';
+  let charts = {};
+  let cajaAdminDocs = [];
+
+  // ─── MAYÚSCULAS EN TODOS LOS INPUTS ───
+  document.addEventListener('input', e => {
+    if (e.target.matches('input[type="text"], input[type="search"]')) {
+      const pos = e.target.selectionStart;
+      e.target.value = e.target.value.toUpperCase();
+      try { e.target.setSelectionRange(pos, pos); } catch(_) {}
+    }
+  });
+
+  // ─── TABS ───
+  window.mostrarSeccion = function(id) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    if (id === 'secGraficas') renderGraficas();
+    if (id === 'secCapturistas') renderCapturistas();
+  };
 
   // ─── FIREBASE STATUS ───
   function setStatus(s) {
     const el = document.getElementById('fbStatus');
     const tx = document.getElementById('fbStatusTxt');
     el.className = 'fb-status ' + s;
-    tx.textContent = s==='conectado' ? 'EN LÍNEA' : s==='desconectado' ? 'SIN CONEXIÓN' : 'CONECTANDO...';
+    tx.textContent = s==='conectado'?'EN LÍNEA':s==='desconectado'?'SIN CONEXIÓN':'CONECTANDO...';
   }
 
   // ─── LISTENER TIEMPO REAL ───
@@ -457,12 +533,15 @@
     setStatus('conectado');
     updateStats();
     renderTable(allDocs.length > prev);
+    // Actualizar capturistas si la sección está activa
+    if (document.getElementById('secCapturistas').classList.contains('active')) renderCapturistas();
+    if (document.getElementById('secGraficas').classList.contains('active')) renderGraficas();
   }, (err) => { setStatus('desconectado'); console.error(err); });
 
   // ─── RELOJ ───
   function updateClock() {
     const now = new Date();
-    const h=String(now.getHours()).padStart(2,'0'), m=String(now.getMinutes()).padStart(2,'0'), s=String(now.getSeconds()).padStart(2,'0');
+    const h=String(now.getHours()).padStart(2,'0'),m=String(now.getMinutes()).padStart(2,'0'),s=String(now.getSeconds()).padStart(2,'0');
     document.getElementById('clockTime').textContent = `${h}:${m}:${s}`;
     const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -480,7 +559,6 @@
     document.getElementById('statMotos').textContent     = allDocs.filter(r=>r.tipoVehiculo==='moto').length;
   }
 
-  // ─── SUBTIPO BADGE ───
   function subtipoBadge(r) {
     if (r.tipoVehiculo==='moto') return `<span class="badge badge-${r.cantidad}">🏍 ${r.cantidad}PCA</span>`;
     if (r.denuncia)              return `<span class="badge badge-${r.cantidad}">🚗 ${r.cantidad}PCA+DEN</span>`;
@@ -489,42 +567,36 @@
 
   // ─── SORT ───
   window.sortBy = function(col) {
-    if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
+    if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=-1; }
     renderTable();
   };
 
-  // ─── RENDER TABLE ───
   function getFiltered() {
     const q = (document.getElementById('searchBox')?.value||'').trim().toUpperCase();
     let data = [...allDocs];
     if (q) data = data.filter(r =>
-      (r.placa||'').includes(q) || (r.propietario||'').toUpperCase().includes(q) ||
-      (r.caja||'').includes(q)  || (r.cajero||'').toUpperCase().includes(q) ||
-      (r.capturista||'').toUpperCase().includes(q) || (r.folio||'').includes(q) ||
-      (r.denuncia||'').includes(q)
-    );
+      (r.placa||'').includes(q)||(r.propietario||'').toUpperCase().includes(q)||
+      (r.caja||'').includes(q)||(r.cajero||'').toUpperCase().includes(q)||
+      (r.capturista||'').toUpperCase().includes(q)||(r.folio||'').includes(q)||(r.denuncia||'').includes(q));
     data.sort((a,b) => {
-      const av = a[sortCol]||'', bv = b[sortCol]||'';
-      return (av < bv ? -1 : av > bv ? 1 : 0) * sortDir;
+      const av=a[sortCol]||'', bv=b[sortCol]||'';
+      return (av<bv?-1:av>bv?1:0)*sortDir;
     });
     return data;
   }
 
   window.renderTable = function(newRow=false) {
     const data = getFiltered();
-    const totalPages = Math.max(1, Math.ceil(data.length/pageSize));
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage-1)*pageSize;
-    const page  = data.slice(start, start+pageSize);
-    const tbody = document.getElementById('tableBody');
-    const empty = document.getElementById('emptyState');
-
-    if (data.length === 0) {
-      tbody.innerHTML = '';
-      empty.style.display = 'block';
-    } else {
-      empty.style.display = 'none';
-      tbody.innerHTML = page.map((r,i) => `
+    const totalPages = Math.max(1,Math.ceil(data.length/pageSize));
+    if (currentPage>totalPages) currentPage=totalPages;
+    const start=(currentPage-1)*pageSize;
+    const page=data.slice(start,start+pageSize);
+    const tbody=document.getElementById('tableBody');
+    const empty=document.getElementById('emptyState');
+    if (data.length===0) { tbody.innerHTML=''; empty.style.display='block'; }
+    else {
+      empty.style.display='none';
+      tbody.innerHTML = page.map((r,i)=>`
         <tr class="${newRow&&i===0?'row-new':''}">
           <td class="folio-cell">${r.folio||'—'}</td>
           <td style="font-weight:bold;color:var(--accent);letter-spacing:1px">${r.caja||'—'}</td>
@@ -536,7 +608,7 @@
           <td style="font-size:0.83rem">${r.fecha||'—'}<br><span style="color:var(--accent);opacity:0.6;font-size:0.72rem">Cap: ${r.fechaCaptura||'—'}</span></td>
           <td>${r.denuncia?`<span style="font-size:0.78rem;color:var(--danger)">${r.denuncia}</span>`:'—'}</td>
           <td>
-            <button class="btn-edit" onclick="abrirEditar('${r.docId}')" title="Editar">✏️</button>
+            <button class="btn-edit" onclick="abrirEditar('${r.docId}','registros')" title="Editar">✏️</button>
             <button class="btn-del" onclick="eliminar('${r.docId}','${r.placa}')">✕</button>
           </td>
         </tr>`).join('');
@@ -545,312 +617,356 @@
   };
 
   function renderPagination(totalPages) {
-    const pag = document.getElementById('pagination');
-    if (totalPages <= 1) { pag.innerHTML=''; return; }
-    let html = `<span class="page-info">Página ${currentPage} de ${totalPages}</span>`;
-    if (currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹ Ant</button>`;
-    for (let i=Math.max(1,currentPage-2); i<=Math.min(totalPages,currentPage+2); i++)
-      html += `<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
-    if (currentPage < totalPages) html += `<button class="page-btn" onclick="goPage(${currentPage+1})">Sig ›</button>`;
-    pag.innerHTML = html;
+    const pag=document.getElementById('pagination');
+    if (totalPages<=1){pag.innerHTML='';return;}
+    let html=`<span class="page-info">Página ${currentPage} de ${totalPages}</span>`;
+    if (currentPage>1) html+=`<button class="page-btn" onclick="goPage(${currentPage-1})">‹ Ant</button>`;
+    for (let i=Math.max(1,currentPage-2);i<=Math.min(totalPages,currentPage+2);i++)
+      html+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+    if (currentPage<totalPages) html+=`<button class="page-btn" onclick="goPage(${currentPage+1})">Sig ›</button>`;
+    pag.innerHTML=html;
   }
-
-  window.goPage = function(p) { currentPage=p; renderTable(); };
+  window.goPage = function(p){currentPage=p;renderTable();};
 
   // ─── ELIMINAR ───
-  window.eliminar = async function(docId, placa) {
+  window.eliminar = async function(docId,placa) {
     if (!confirm(`¿Eliminar el registro de la placa ${placa}?\nEsta acción no se puede deshacer.`)) return;
     try {
-      await deleteDoc(doc(db, 'placas', docId));
+      await deleteDoc(doc(db,'placas',docId));
       toast(`🗑️ Registro de placa ${placa} eliminado`);
-    } catch(e) { toast('❌ Error al eliminar', true); console.error(e); }
+    } catch(e){toast('❌ Error al eliminar',true);console.error(e);}
   };
 
   // ─── EDITAR ───
-  window.abrirEditar = function(docId) {
-    const r = allDocs.find(x => x.docId === docId);
-    if (!r) { toast('⚠️ Registro no encontrado', true); return; }
-    document.getElementById('editDocId').value         = docId;
+  window.abrirEditar = function(docId, origen='registros') {
+    const lista = origen==='caja' ? cajaAdminDocs : allDocs;
+    const r = lista.find(x=>x.docId===docId) || allDocs.find(x=>x.docId===docId);
+    if (!r){toast('⚠️ Registro no encontrado',true);return;}
+    document.getElementById('editDocId').value          = docId;
+    document.getElementById('editOrigen').value         = origen;
     document.getElementById('editPlacaTitulo').textContent = r.placa;
-    document.getElementById('editPlaca').value          = r.placa||'';
-    document.getElementById('editCaja').value           = r.caja||'';
-    document.getElementById('editPropietario').value    = r.propietario||'';
-    document.getElementById('editDenuncia').value       = r.denuncia||'';
-    document.getElementById('editCajero').value         = r.cajero||'';
-    document.getElementById('editCapturista').value     = r.capturista||'';
-    document.getElementById('editTipoVehiculo').value   = r.tipoVehiculo||'vehiculo';
-    document.getElementById('editPlacaOpcion').value    = r.placaOpcion||'2placas';
-    if (r.fecha) {
-      const parts = r.fecha.split('/');
-      if (parts.length===3) document.getElementById('editFecha').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
+    document.getElementById('editPlaca').value           = r.placa||'';
+    document.getElementById('editCaja').value            = r.caja||'';
+    document.getElementById('editPropietario').value     = r.propietario||'';
+    document.getElementById('editDenuncia').value        = r.denuncia||'';
+    document.getElementById('editCajero').value          = r.cajero||'';
+    document.getElementById('editCapturista').value      = r.capturista||'';
+    document.getElementById('editTipoVehiculo').value    = r.tipoVehiculo||'vehiculo';
+    document.getElementById('editPlacaOpcion').value     = r.placaOpcion||'2placas';
+    if (r.fecha){const parts=r.fecha.split('/');if(parts.length===3)document.getElementById('editFecha').value=`${parts[2]}-${parts[1]}-${parts[0]}`;}
     document.getElementById('editModal').classList.add('open');
   };
 
-  window.cerrarEditar = function() { document.getElementById('editModal').classList.remove('open'); };
+  window.cerrarEditar = function(){document.getElementById('editModal').classList.remove('open');};
 
   window.guardarEdicion = async function() {
     const docId       = document.getElementById('editDocId').value;
+    const origen      = document.getElementById('editOrigen').value;
     const placa       = document.getElementById('editPlaca').value.trim().toUpperCase();
     const caja        = document.getElementById('editCaja').value.trim().toUpperCase();
-    const propietario = document.getElementById('editPropietario').value.trim();
+    const propietario = document.getElementById('editPropietario').value.trim().toUpperCase();
     const denuncia    = document.getElementById('editDenuncia').value.trim().toUpperCase();
-    const cajero      = document.getElementById('editCajero').value.trim();
-    const capturista  = document.getElementById('editCapturista').value.trim();
+    const cajero      = document.getElementById('editCajero').value.trim().toUpperCase();
+    const capturista  = document.getElementById('editCapturista').value.trim().toUpperCase();
     const fechaVal    = document.getElementById('editFecha').value;
-    const tipoVehiculo = document.getElementById('editTipoVehiculo').value;
-    const placaOpcion  = document.getElementById('editPlacaOpcion').value;
+    const tipoVehiculo= document.getElementById('editTipoVehiculo').value;
+    const placaOpcion = document.getElementById('editPlacaOpcion').value;
 
-    if (!placa)       { toast('⚠️ La placa no puede estar vacía', true); return; }
-    if (!propietario) { toast('⚠️ El propietario no puede estar vacío', true); return; }
-    if (!cajero)      { toast('⚠️ El cajero no puede estar vacío', true); return; }
-    if (!fechaVal)    { toast('⚠️ La fecha no puede estar vacía', true); return; }
+    if (!placa)      {toast('⚠️ La placa no puede estar vacía',true);return;}
+    if (!propietario){toast('⚠️ El propietario no puede estar vacío',true);return;}
+    if (!cajero)     {toast('⚠️ El cajero no puede estar vacío',true);return;}
+    if (!fechaVal)   {toast('⚠️ La fecha no puede estar vacía',true);return;}
 
-    if (allDocs.some(r => r.placa===placa && r.docId!==docId)) {
-      toast(`⛔ La placa ${placa} ya existe en otro registro`, true); return;
-    }
-    if (denuncia && allDocs.some(r => r.denuncia===denuncia && r.docId!==docId)) {
-      toast(`⛔ La denuncia ${denuncia} ya existe en otro registro`, true); return;
-    }
+    if (allDocs.some(r=>r.placa===placa&&r.docId!==docId)){toast(`⛔ La placa ${placa} ya existe`,true);return;}
+    if (denuncia&&allDocs.some(r=>r.denuncia===denuncia&&r.docId!==docId)){toast(`⛔ La denuncia ${denuncia} ya existe`,true);return;}
 
-    let cantidad = 2;
+    let cantidad=2;
     if (placaOpcion==='1placa_den1'||placaOpcion==='1placa') cantidad=1;
     else if (placaOpcion==='0placas_den') cantidad=0;
-
-    const [fy,fm,fd] = fechaVal.split('-');
-    const fechaFmt = `${fd}/${fm}/${fy}`;
+    const [fy,fm,fd]=fechaVal.split('-');
+    const fechaFmt=`${fd}/${fm}/${fy}`;
 
     try {
-      await updateDoc(doc(db,'placas',docId), {
-        placa, caja, propietario, denuncia, cajero, capturista,
-        fecha: fechaFmt, tipoVehiculo, placaOpcion, subtipo: tipoVehiculo, cantidad,
-        fechaISO: new Date(fechaVal).toISOString(),
-        timestamp: new Date(fechaVal).getTime()
+      await updateDoc(doc(db,'placas',docId),{
+        placa,caja,propietario,denuncia,cajero,capturista,
+        fecha:fechaFmt,tipoVehiculo,placaOpcion,subtipo:tipoVehiculo,cantidad,
+        fechaISO:new Date(fechaVal).toISOString(),timestamp:new Date(fechaVal).getTime()
       });
+      // Si era de caja, actualizar lista local y refrescar
+      if (origen==='caja') {
+        const idx=cajaAdminDocs.findIndex(r=>r.docId===docId);
+        if (idx>-1) cajaAdminDocs[idx]={...cajaAdminDocs[idx],placa,caja,propietario,denuncia,cajero,capturista,fecha:fechaFmt,tipoVehiculo,placaOpcion,cantidad};
+        renderCajaAdminTabla();
+      }
       cerrarEditar();
       toast(`✅ Registro de placa ${placa} actualizado`);
-    } catch(e) { toast('❌ Error al actualizar', true); console.error(e); }
+    } catch(e){toast('❌ Error al actualizar',true);console.error(e);}
   };
 
-  // ─── LIMPIAR TODO ───
-  window.clearAll = async function() {
-    const total = allDocs.length;
-    if (!confirm(`¿Eliminar TODOS los ${total} registros de Firebase?\n\nEsta acción es PERMANENTE e IRREVERSIBLE.`)) return;
-    if (!confirm('Segunda confirmación: ¿Está completamente seguro?')) return;
+  // ─── ABRIR CAJA (ADMIN) ───
+  window.buscarCaja = async function() {
+    const num = document.getElementById('inputBuscarCaja').value.trim().toUpperCase();
+    const errEl = document.getElementById('cajaBuscarError');
+    const resEl = document.getElementById('cajaResultado');
+    if (!num){errEl.textContent='⚠️ INGRESA EL NÚMERO DE CAJA';errEl.style.display='block';return;}
+    errEl.style.display='none';
+    resEl.style.display='none';
     try {
-      const snap = await getDocs(col);
-      for (const d of snap.docs) await deleteDoc(doc(db,'placas',d.id));
-      toast('🗑️ Todos los registros eliminados');
-    } catch(e) { toast('❌ Error al limpiar', true); console.error(e); }
+      const snap = await getDocs(query(col, where('caja','==',num)));
+      if (snap.empty){errEl.textContent=`❌ NO SE ENCONTRARON REGISTROS PARA LA CAJA "${num}"`;errEl.style.display='block';return;}
+      cajaAdminDocs = snap.docs.map(d=>({docId:d.id,...d.data()}))
+        .sort((a,b)=>(a.folioNum||0)-(b.folioNum||0));
+      const capturistas=[...new Set(cajaAdminDocs.map(r=>r.capturista))].join(', ');
+      const fechas=[...new Set(cajaAdminDocs.map(r=>r.fechaCaptura))].join(', ');
+      document.getElementById('cajaInfoHeader').innerHTML =
+        `<strong style="color:var(--accent)">CAJA: ${num}</strong> &nbsp;|&nbsp; ${cajaAdminDocs.length} registros &nbsp;|&nbsp; Capturista(s): <strong style="color:var(--text)">${capturistas}</strong> &nbsp;|&nbsp; Fecha(s): ${fechas}`;
+      renderCajaAdminTabla();
+      resEl.style.display='block';
+    } catch(e){errEl.textContent='❌ ERROR DE CONEXIÓN';errEl.style.display='block';console.error(e);}
+  };
+
+  function renderCajaAdminTabla() {
+    const tbody=document.getElementById('cajaAdminBody');
+    tbody.innerHTML='';
+    cajaAdminDocs.forEach((r,i)=>{
+      const opLabel={'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Den.','0placas_den':'Solo Den.'}[r.placaOpcion]||r.placaOpcion;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td style="color:var(--text2);text-align:center">${i+1}</td>
+        <td style="color:var(--text2);font-size:0.75rem">${r.folio||'—'}</td>
+        <td style="color:var(--accent);font-weight:700;letter-spacing:3px">${r.placa}</td>
+        <td style="color:var(--warning)">${r.tipoVehiculo==='moto'?'🏍️ MOTO':'🚗 VEH.'}</td>
+        <td style="color:var(--text2);text-align:center">${opLabel}</td>
+        <td style="color:var(--text)">${r.propietario}</td>
+        <td style="color:var(--text2);font-size:0.8rem">${r.cajero||'—'}</td>
+        <td style="color:var(--text2);font-size:0.8rem">${r.capturista||'—'}</td>
+        <td style="color:var(--text2);font-size:0.8rem">${r.fecha||'—'}</td>
+        <td style="color:var(--danger);font-size:0.75rem">${r.denuncia||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-edit" onclick="abrirEditar('${r.docId}','caja')" title="Editar">✏️</button>
+          <button class="btn-del" onclick="eliminar('${r.docId}','${r.placa}')">✕</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.imprimirCajaAdmin = function() {
+    if (!cajaAdminDocs.length){toast('⚠️ Sin registros',true);return;}
+    const num=document.getElementById('inputBuscarCaja').value.trim().toUpperCase();
+    const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    let filas='';
+    cajaAdminDocs.forEach((r,i)=>{
+      const op={'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Denuncia','0placas_den':'Solo Den.'}[r.placaOpcion]||r.placaOpcion;
+      filas+=`<tr style="background:${i%2===1?'#f7f7f7':'#fff'}">
+        <td style="text-align:center">${i+1}</td><td>${r.folio||'—'}</td>
+        <td style="font-weight:bold;letter-spacing:1px">${r.placa}</td>
+        <td>${r.tipoVehiculo==='moto'?'MOTO':'VEHÍCULO'}</td><td>${op}</td>
+        <td>${r.propietario}</td><td>${r.cajero||'—'}</td>
+        <td>${r.capturista||'—'}</td><td>${r.fecha||'—'}</td><td>${r.denuncia||'—'}</td>
+      </tr>`;
+    });
+    const v=window.open('','_blank');
+    v.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Caja ${num}</title>
+      <style>@page{size:letter portrait;margin:8mm 10mm}*{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:Arial,sans-serif;background:#fff;color:#000}
+      .enc{text-align:center;border-bottom:1px solid #aaa;padding-bottom:4mm;margin-bottom:3mm}
+      .enc h2{font-size:12pt;font-weight:bold;letter-spacing:1px}.enc p{font-size:7.5pt;color:#333}
+      table{width:100%;border-collapse:collapse;font-size:7pt;table-layout:fixed}
+      thead tr{background:#eee}th{padding:3px 4px;font-size:6.5pt;font-weight:bold;border:0.5px solid #bbb;text-align:left}
+      td{padding:2px 4px;border:0.5px solid #ddd;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      th:nth-child(1),td:nth-child(1){width:4%;text-align:center}th:nth-child(2),td:nth-child(2){width:8%}
+      th:nth-child(3),td:nth-child(3){width:10%;font-weight:bold}th:nth-child(4),td:nth-child(4){width:8%}
+      th:nth-child(5),td:nth-child(5){width:8%}th:nth-child(6),td:nth-child(6){width:22%}
+      th:nth-child(7),td:nth-child(7){width:10%}th:nth-child(8),td:nth-child(8){width:10%}
+      th:nth-child(9),td:nth-child(9){width:9%}th:nth-child(10),td:nth-child(10){width:11%}
+      </style></head><body>
+      <div class="enc"><h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
+      <p>CAJA: ${num} | REGISTROS: ${cajaAdminDocs.length} | IMPRESO: ${fecha} ${hora}</p></div>
+      <table><thead><tr><th>#</th><th>FOLIO</th><th>PLACA</th><th>TIPO</th><th>PLACAS</th>
+      <th>PROPIETARIO</th><th>CAJERO</th><th>CAPTURISTA</th><th>FECHA BAJA</th><th>DENUNCIA</th>
+      </tr></thead><tbody>${filas}</tbody></table></body></html>`);
+    v.document.close();v.focus();setTimeout(()=>{v.print();v.close();},500);
+  };
+
+  // ─── CAPTURISTAS EN VIVO ───
+  window.renderCapturistas = function() {
+    const grid=document.getElementById('capGrid');
+    const hoy=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+    // Agrupar por capturista
+    const caps={};
+    allDocs.forEach(r=>{
+      const c=r.capturista||'SIN NOMBRE';
+      if (!caps[c]) caps[c]={total:0,hoy:0,motos:0,denuncias:0,ultimo:null,cajas:new Set()};
+      caps[c].total++;
+      if (r.fechaCaptura===hoy) caps[c].hoy++;
+      if (r.tipoVehiculo==='moto') caps[c].motos++;
+      if (r.denuncia&&r.denuncia.trim()) caps[c].denuncias++;
+      if (r.caja) caps[c].cajas.add(r.caja);
+      if (!caps[c].ultimo||r.timestamp>caps[c].ultimo.timestamp) caps[c].ultimo=r;
+    });
+    if (Object.keys(caps).length===0){
+      grid.innerHTML='<div style="color:var(--text2);text-align:center;padding:3rem;grid-column:1/-1;">Sin datos de capturistas</div>';
+      return;
+    }
+    grid.innerHTML='';
+    // Ordenar por capturas de hoy descendente
+    Object.entries(caps).sort((a,b)=>b[1].hoy-a[1].hoy).forEach(([nombre,d])=>{
+      const activo=d.hoy>0;
+      const ultimoTexto=d.ultimo?`<strong>${d.ultimo.placa}</strong> — ${d.ultimo.propietario||'—'} (${d.ultimo.hora||'—'})`:'—';
+      const card=document.createElement('div');
+      card.className='cap-card'+(activo?' activo':'');
+      card.innerHTML=`
+        <div class="cap-card-header">
+          <div class="cap-avatar">👤</div>
+          <div>
+            <div class="cap-nombre">${nombre}</div>
+            <div class="cap-estado">${activo?`<span style="color:var(--success)">● ACTIVO HOY</span>`:'<span style="color:var(--text2)">○ Sin actividad hoy</span>'} · ${d.cajas.size} caja(s)</div>
+          </div>
+        </div>
+        <div class="cap-stats">
+          <div class="cap-stat"><div class="cap-stat-num" style="color:var(--accent)">${d.hoy}</div><div class="cap-stat-lbl">Hoy</div></div>
+          <div class="cap-stat"><div class="cap-stat-num" style="color:var(--success)">${d.total}</div><div class="cap-stat-lbl">Total</div></div>
+          <div class="cap-stat"><div class="cap-stat-num" style="color:var(--danger)">${d.denuncias}</div><div class="cap-stat-lbl">Denuncias</div></div>
+        </div>
+        <div class="cap-ultimo">Último registro: ${ultimoTexto}</div>`;
+      grid.appendChild(card);
+    });
+  };
+
+  // ─── GRÁFICAS ───
+  window.setPeriodo = function(p, btn) {
+    periodografica=p;
+    document.querySelectorAll('.periodo-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGraficas();
+  };
+
+  function filtrarPorPeriodo(docs) {
+    const now=new Date();
+    if (periodografica==='semana') {
+      const inicio=new Date(now); inicio.setDate(now.getDate()-6); inicio.setHours(0,0,0,0);
+      return docs.filter(r=>r.createdAt?.toDate?r.createdAt.toDate()>=inicio:new Date(r.fechaISO||0)>=inicio);
+    } else if (periodografica==='mes') {
+      const inicio=new Date(now.getFullYear(),now.getMonth(),1);
+      return docs.filter(r=>r.createdAt?.toDate?r.createdAt.toDate()>=inicio:new Date(r.fechaISO||0)>=inicio);
+    }
+    return docs;
+  }
+
+  function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+  window.renderGraficas = function() {
+    const datos=filtrarPorPeriodo(allDocs);
+    const accent='#00c8ff', success='#00e676', warning='#ffab00', danger='#ff3d57', purple='#c840ff';
+    const gridColor='rgba(30,58,95,0.5)';
+    const tickColor='#94a3b8';
+    const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tickColor,font:{family:'Rajdhani',size:11}}},tooltip:{backgroundColor:'#111827',borderColor:'#1e3a5f',borderWidth:1}},scales:{x:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridColor}},y:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridColor}}}};
+
+    // 1. Capturas por día
+    destroyChart('dias');
+    const diasMap={};
+    datos.forEach(r=>{const f=r.fechaCaptura||r.fecha||'';if(f)diasMap[f]=(diasMap[f]||0)+1;});
+    const diasKeys=Object.keys(diasMap).sort((a,b)=>{const pa=a.split('/'),pb=b.split('/');return new Date(`${pa[2]}-${pa[1]}-${pa[0]}`)-new Date(`${pb[2]}-${pb[1]}-${pb[0]}`);});
+    charts['dias']=new Chart(document.getElementById('chartDias').getContext('2d'),{type:'bar',data:{labels:diasKeys,datasets:[{label:'Capturas',data:diasKeys.map(k=>diasMap[k]),backgroundColor:'rgba(0,200,255,0.25)',borderColor:accent,borderWidth:2,borderRadius:4}]},options:{...baseOpts}});
+
+    // 2. Vehículos vs Motos
+    destroyChart('tipos');
+    const vehs=datos.filter(r=>r.tipoVehiculo!=='moto').length;
+    const motos=datos.filter(r=>r.tipoVehiculo==='moto').length;
+    charts['tipos']=new Chart(document.getElementById('chartTipos').getContext('2d'),{type:'doughnut',data:{labels:['🚗 Vehículos','🏍️ Motos'],datasets:[{data:[vehs,motos],backgroundColor:['rgba(0,200,255,0.7)','rgba(255,171,0,0.7)'],borderColor:[accent,warning],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tickColor,font:{family:'Rajdhani',size:12}}}}}});
+
+    // 3. Opciones de placas
+    destroyChart('opciones');
+    const ops={'2placas':0,'1placa':0,'1placa_den1':0,'0placas_den':0};
+    datos.forEach(r=>{if(ops[r.placaOpcion]!==undefined)ops[r.placaOpcion]++;});
+    charts['opciones']=new Chart(document.getElementById('chartOpciones').getContext('2d'),{type:'pie',data:{labels:['2 Placas','1 Placa','1+Denuncia','Solo Den.'],datasets:[{data:Object.values(ops),backgroundColor:['rgba(0,200,255,0.7)','rgba(0,230,118,0.7)','rgba(255,171,0,0.7)','rgba(255,61,87,0.7)'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tickColor,font:{family:'Rajdhani',size:11}}}}}});
+
+    // 4. Denuncias por día
+    destroyChart('denuncias');
+    const denMap={};
+    datos.filter(r=>r.denuncia&&r.denuncia.trim()).forEach(r=>{const f=r.fechaCaptura||r.fecha||'';if(f)denMap[f]=(denMap[f]||0)+1;});
+    const denKeys=Object.keys(denMap).sort((a,b)=>{const pa=a.split('/'),pb=b.split('/');return new Date(`${pa[2]}-${pa[1]}-${pa[0]}`)-new Date(`${pb[2]}-${pb[1]}-${pb[0]}`);});
+    charts['denuncias']=new Chart(document.getElementById('chartDenuncias').getContext('2d'),{type:'bar',data:{labels:denKeys.length?denKeys:['Sin datos'],datasets:[{label:'Denuncias',data:denKeys.length?denKeys.map(k=>denMap[k]):[0],backgroundColor:'rgba(255,61,87,0.25)',borderColor:danger,borderWidth:2,borderRadius:4}]},options:{...baseOpts}});
+
+    // 5. Por capturista
+    destroyChart('capturistas');
+    const capMap={};
+    datos.forEach(r=>{const c=r.capturista||'SIN NOMBRE';capMap[c]=(capMap[c]||0)+1;});
+    const capKeys=Object.keys(capMap).sort((a,b)=>capMap[b]-capMap[a]).slice(0,10);
+    charts['capturistas']=new Chart(document.getElementById('chartCapturistas').getContext('2d'),{type:'bar',data:{labels:capKeys,datasets:[{label:'Capturas',data:capKeys.map(k=>capMap[k]),backgroundColor:'rgba(200,64,255,0.25)',borderColor:purple,borderWidth:2,borderRadius:4}]},options:{...baseOpts,indexAxis:'y'}});
   };
 
   // ─── EXPORTAR CSV ───
   window.exportCSV = function() {
-    if (allDocs.length===0) { toast('No hay datos para exportar', true); return; }
-    const esc = v => {
-      const s=(v===undefined||v===null)?'':String(v);
-      return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;
-    };
-    const header = 'Folio,Caja,Placa,Tipo Vehiculo,Placa Opcion,Cantidad,Denuncia,Propietario,Cajero,Capturista,Fecha Baja,Hora,Fecha Captura\n';
-    const rows = allDocs.map(r=>[
-      esc(r.folio),esc(r.caja),esc(r.placa),esc(r.tipoVehiculo),esc(r.placaOpcion),
-      esc(r.cantidad),esc(r.denuncia),esc(r.propietario),esc(r.cajero),esc(r.capturista),
-      esc(r.fecha),esc(r.hora),esc(r.fechaCaptura)
-    ].join(',')).join('\n');
-    const blob = new Blob(['\uFEFF'+header+rows],{type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download=`placas_nayarit_${new Date().toISOString().slice(0,10)}.csv`; a.click();
-    URL.revokeObjectURL(url);
-    toast('📁 CSV exportado correctamente');
+    if (!allDocs.length){toast('No hay datos para exportar',true);return;}
+    const esc=v=>{const s=(v===undefined||v===null)?'':String(v);return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;};
+    const header='Folio,Caja,Placa,Tipo Vehiculo,Placa Opcion,Cantidad,Denuncia,Propietario,Cajero,Capturista,Fecha Baja,Hora,Fecha Captura\n';
+    const rows=allDocs.map(r=>[esc(r.folio),esc(r.caja),esc(r.placa),esc(r.tipoVehiculo),esc(r.placaOpcion),esc(r.cantidad),esc(r.denuncia),esc(r.propietario),esc(r.cajero),esc(r.capturista),esc(r.fecha),esc(r.hora),esc(r.fechaCaptura)].join(',')).join('\n');
+    const blob=new Blob(['\uFEFF'+header+rows],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    a.download=`bajas_nayarit_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();URL.revokeObjectURL(url);
+    toast('✅ CSV exportado');
   };
 
-  // ─── REPORTE ───
+  // ─── REPORTE / IMPRESIÓN ───
+  window.openReportModal  = ()=>document.getElementById('reportModal').classList.add('open');
+  window.closeReportModal = ()=>document.getElementById('reportModal').classList.remove('open');
   window.setReportType = function(t) {
-    reportType = t;
-    document.querySelectorAll('.report-type-btn').forEach(b=>b.classList.remove('active'));
+    reportType=t;
+    ['fechas','caja','todo'].forEach(x=>{document.getElementById('type'+x.charAt(0).toUpperCase()+x.slice(1))?.classList.remove('active');document.getElementById('opt'+x.charAt(0).toUpperCase()+x.slice(1))?.classList.remove('visible');});
     document.getElementById('type'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.add('active');
-    document.querySelectorAll('.report-options').forEach(o=>o.classList.remove('visible'));
-    if (t==='fechas') document.getElementById('optFechas').classList.add('visible');
-    if (t==='caja')   document.getElementById('optCaja').classList.add('visible');
+    document.getElementById('opt'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.add('visible');
   };
-  window.openReportModal  = function() { document.getElementById('reportModal').classList.add('open'); };
-  window.closeReportModal = function() { document.getElementById('reportModal').classList.remove('open'); };
 
   window.generarReporte = function() {
-    let data = [...allDocs];
-    if (reportType === 'fechas') {
-      const ini = document.getElementById('rFechaIni').value;
-      const fin = document.getElementById('rFechaFin').value;
-      if (ini||fin) {
-        data = data.filter(r => {
-          const ts = r.timestamp||0;
-          const iniTs = ini ? new Date(ini).getTime() : 0;
-          const finTs = fin ? new Date(fin).getTime()+86399999 : Infinity;
-          return ts>=iniTs && ts<=finTs;
-        });
-      }
-    } else if (reportType === 'caja') {
-      const caja = (document.getElementById('rCaja').value||'').trim().toUpperCase();
-      if (caja) data = data.filter(r=>(r.caja||'').toUpperCase()===caja);
-    }
-
-    if (data.length===0) { toast('⚠️ No hay registros con ese filtro', true); return; }
-    data.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-
-    const RPP = 30;
-    const pages = [];
-    for (let i=0; i<data.length; i+=RPP) pages.push(data.slice(i,i+RPP));
-
-    const now = new Date();
-    const nowStr = now.toLocaleString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-    const totalPlacas = data.reduce((s,r)=>s+(r.cantidad||0),0);
-    const totalDen    = data.filter(r=>r.denuncia&&r.denuncia.trim()).length;
-
-    const css = `
-      @page{size:letter landscape;margin:15mm 18mm 15mm 18mm;}
-      *{box-sizing:border-box;margin:0;padding:0;}
-      body{font-family:Arial,sans-serif;font-size:8.5px;color:#000;background:#fff;}
-      .page{page-break-after:always;padding:0;}
-      .page:last-child{page-break-after:avoid;}
-      .report-header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2.5px solid #003366;padding-bottom:7px;margin-bottom:8px;}
-      .report-header-left{text-align:left;padding-left:8mm;}
-      .report-header-center{text-align:center;flex:1;padding:0 12px;padding-left:18mm;}
-      .report-header-right{text-align:right;white-space:nowrap;padding-right:8mm;}
-      .rep-title{font-size:11px;font-weight:bold;color:#003366;letter-spacing:1px;}
-      .rep-sub{font-size:8px;color:#555;margin-top:2px;}
-      table{width:100%;border-collapse:collapse;margin-top:4px;}
-      colgroup col:nth-child(1){width:7%} colgroup col:nth-child(2){width:9%}
-      colgroup col:nth-child(3){width:9%} colgroup col:nth-child(4){width:10%}
-      colgroup col:nth-child(5){width:16%} colgroup col:nth-child(6){width:11%}
-      colgroup col:nth-child(7){width:11%} colgroup col:nth-child(8){width:11%} colgroup col:nth-child(9){width:10%}
-      thead th{background:#003366;color:#fff;padding:4px 5px;font-size:7.5px;letter-spacing:0.5px;text-align:left;border:1px solid #003366;}
-      tbody td{padding:3px 5px;border:1px solid #ccc;font-size:8px;vertical-align:middle;}
-      tbody tr:nth-child(even){background:#f0f4ff;}
-      tbody tr:hover{background:#e8f0ff;}
-      .placa-col{font-family:monospace;font-weight:bold;letter-spacing:2px;color:#003366;}
-      .den-col{color:#c00;font-weight:bold;}
-      .summary-box{background:#f0f4ff;border:1px solid #c5d3f0;border-radius:5px;padding:6px 12px;margin-top:8px;display:flex;gap:25px;}
-      .sum-item .lbl{font-size:8px;color:#666;text-transform:uppercase;}
-      .sum-item .val{font-size:13px;font-weight:bold;color:#003366;}
-      @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}`;
-
-    const pagesHTML = pages.map((pg, pIdx) => {
-      const filtroLabel = reportType==='fechas'?'Filtro: Rango de fechas': reportType==='caja'?`Filtro: ${(document.getElementById('rCaja').value||'').toUpperCase()||'Todas las cajas'}`:'Filtro: Todos los registros';
-      const summaryHTML = pIdx===pages.length-1 ? `
-        <div class="summary-box">
-          <div class="sum-item"><div class="lbl">Total Registros</div><div class="val">${data.length}</div></div>
-          <div class="sum-item"><div class="lbl">Total Placas</div><div class="val">${totalPlacas}</div></div>
-          <div class="sum-item"><div class="lbl">Simples (1)</div><div class="val">${data.filter(r=>r.cantidad===1).length}</div></div>
-          <div class="sum-item"><div class="lbl">Dobles (2)</div><div class="val">${data.filter(r=>r.cantidad===2).length}</div></div>
-          <div class="sum-item"><div class="lbl">Total Denuncias</div><div class="val" style="color:#c00">${totalDen}</div></div>
-        </div>` : '';
-      return `<div class="page">
-        <div class="report-header">
-          <div class="report-header-left">
-            <div style="font-size:8px;color:#555;">Impreso: ${nowStr}</div>
-            <div style="font-size:8px;color:#555;">Hoja ${pIdx+1} de ${pages.length}</div>
-          </div>
-          <div class="report-header-center">
-            <div class="rep-title">SISTEMA DE BAJAS - MODULO DE REEMPLACAMIENTO</div>
-            <div class="rep-sub">GOBIERNO DEL ESTADO DE NAYARIT — INFORMACIÓN DE BAJAS</div>
-            <div class="rep-sub" style="margin-top:2px">${filtroLabel}</div>
-          </div>
-          <div class="report-header-right">
-            <div style="font-size:8px;color:#555;">Total registros: ${data.length}</div>
-            <div style="font-size:8px;color:#555;">Total placas: ${totalPlacas}</div>
-          </div>
-        </div>
-        <table>
-          <colgroup><col><col><col><col><col><col><col><col><col></colgroup>
-          <thead><tr>
-            <th>CAJA</th><th>PLACA</th><th>CANTIDAD</th><th># DENUNCIA</th>
-            <th>PROPIETARIO</th><th>CAJERO</th><th>CAPTURISTA</th><th>FECHA BAJA</th><th>FECHA CAPTURA</th>
-          </tr></thead>
-          <tbody>
-            ${pg.map(r=>`<tr>
-              <td>${r.caja||'—'}</td>
-              <td class="placa-col">${r.placa||'—'}</td>
-              <td style="text-align:center">${r.cantidad}</td>
-              <td class="den-col">${r.denuncia||'—'}</td>
-              <td>${r.propietario||'—'}</td>
-              <td>${r.cajero||'—'}</td>
-              <td>${r.capturista||'—'}</td>
-              <td>${r.fecha||'—'}</td>
-              <td>${r.fechaCaptura||'—'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-        ${summaryHTML}
-      </div>`;
+    let data=[...allDocs];
+    if (reportType==='fechas'){
+      const ini=document.getElementById('rFechaIni').value;const fin=document.getElementById('rFechaFin').value;
+      if (!ini||!fin){toast('⚠️ Selecciona rango de fechas',true);return;}
+      data=data.filter(r=>{if(!r.fechaISO)return false;const d=new Date(r.fechaISO);return d>=new Date(ini)&&d<=new Date(fin+'T23:59:59');});
+    } else if (reportType==='caja'){
+      const c=(document.getElementById('rCaja').value||'').trim().toUpperCase();
+      if (c) data=data.filter(r=>(r.caja||'').toUpperCase()===c);
+    } else if (!reportType){toast('⚠️ Selecciona tipo de reporte',true);return;}
+    data.sort((a,b)=>(a.folioNum||0)-(b.folioNum||0));
+    if (!data.length){toast('⚠️ Sin registros para ese filtro',true);return;}
+    const RPP=30; const pages=[];
+    for(let i=0;i<data.length;i+=RPP) pages.push(data.slice(i,i+RPP));
+    const now=new Date();
+    const nowStr=now.toLocaleString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    const totalPlacas=data.reduce((s,r)=>s+(r.cantidad||0),0);
+    const totalDen=data.filter(r=>r.denuncia&&r.denuncia.trim()).length;
+    const css=`@page{size:letter landscape;margin:15mm 18mm}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:8.5px;color:#000;background:#fff;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}.report-header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2.5px solid #003366;padding-bottom:7px;margin-bottom:8px;}.report-header-center{text-align:center;flex:1;padding:0 12px;}.rep-title{font-size:11px;font-weight:bold;color:#003366;letter-spacing:1px;}.rep-sub{font-size:8px;color:#555;margin-top:2px;}table{width:100%;border-collapse:collapse;margin-top:4px;}thead th{background:#003366;color:#fff;padding:4px 5px;font-size:7.5px;letter-spacing:0.5px;text-align:left;border:1px solid #003366;}tbody td{padding:3px 5px;border:1px solid #ccc;font-size:8px;vertical-align:middle;}tbody tr:nth-child(even){background:#f0f4ff;}.placa-col{font-family:monospace;font-weight:bold;letter-spacing:2px;color:#003366;}.den-col{color:#c00;font-weight:bold;}.summary-box{background:#f0f4ff;border:1px solid #c5d3f0;border-radius:5px;padding:6px 12px;margin-top:8px;display:flex;gap:25px;}.sum-item .lbl{font-size:8px;color:#666;text-transform:uppercase;}.sum-item .val{font-size:13px;font-weight:bold;color:#003366;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}`;
+    const filtroLabel=reportType==='fechas'?'Filtro: Rango de fechas':reportType==='caja'?`Filtro: Caja ${(document.getElementById('rCaja').value||'').toUpperCase()||'Todas'}`:'Filtro: Todos los registros';
+    const pagesHTML=pages.map((pg,pIdx)=>{
+      const summary=pIdx===pages.length-1?`<div class="summary-box"><div class="sum-item"><div class="lbl">Total Registros</div><div class="val">${data.length}</div></div><div class="sum-item"><div class="lbl">Total Placas</div><div class="val">${totalPlacas}</div></div><div class="sum-item"><div class="lbl">Simples (1)</div><div class="val">${data.filter(r=>r.cantidad===1).length}</div></div><div class="sum-item"><div class="lbl">Dobles (2)</div><div class="val">${data.filter(r=>r.cantidad===2).length}</div></div><div class="sum-item"><div class="lbl">Total Denuncias</div><div class="val" style="color:#c00">${totalDen}</div></div></div>`:'';
+      return `<div class="page"><div class="report-header"><div style="font-size:8px;color:#555;">Impreso: ${nowStr}<br>Hoja ${pIdx+1} de ${pages.length}</div><div class="report-header-center"><div class="rep-title">SISTEMA DE BAJAS - MODULO DE REEMPLACAMIENTO</div><div class="rep-sub">GOBIERNO DEL ESTADO DE NAYARIT — INFORMACIÓN DE BAJAS</div><div class="rep-sub" style="margin-top:2px">${filtroLabel}</div></div><div style="font-size:8px;color:#555;text-align:right;">Total registros: ${data.length}<br>Total placas: ${totalPlacas}</div></div><table><thead><tr><th>CAJA</th><th>PLACA</th><th>CANTIDAD</th><th># DENUNCIA</th><th>PROPIETARIO</th><th>CAJERO</th><th>CAPTURISTA</th><th>FECHA BAJA</th><th>FECHA CAPTURA</th></tr></thead><tbody>${pg.map(r=>`<tr><td>${r.caja||'—'}</td><td class="placa-col">${r.placa||'—'}</td><td style="text-align:center">${r.cantidad}</td><td class="den-col">${r.denuncia||'—'}</td><td>${r.propietario||'—'}</td><td>${r.cajero||'—'}</td><td>${r.capturista||'—'}</td><td>${r.fecha||'—'}</td><td>${r.fechaCaptura||'—'}</td></tr>`).join('')}</tbody></table>${summary}</div>`;
     }).join('');
-
-    const fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Bajas</title><style>${css}</style></head><body>${pagesHTML}</body></html>`;
-
-    const overlay = document.getElementById('previewOverlay');
-    const frame   = document.getElementById('previewFrame');
-    const info    = document.getElementById('previewInfo');
-    info.textContent = `${data.length} registro(s) · ${pages.length} hoja(s) · Carta Horizontal`;
-    frame._printHTML = fullHTML;
-
-    const blob    = new Blob([fullHTML],{type:'text/html'});
-    const blobURL = URL.createObjectURL(blob);
-    const wrap    = document.querySelector('.preview-frame-wrap');
-
-    frame.onload = () => {
+    const fullHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Bajas</title><style>${css}</style></head><body>${pagesHTML}</body></html>`;
+    const frame=document.getElementById('previewFrame');
+    const info=document.getElementById('previewInfo');
+    info.textContent=`${data.length} registro(s) · ${pages.length} hoja(s) · Carta Horizontal`;
+    frame._printHTML=fullHTML;
+    const blob=new Blob([fullHTML],{type:'text/html'});
+    const blobURL=URL.createObjectURL(blob);
+    const wrap=document.querySelector('.preview-frame-wrap');
+    frame.onload=()=>{
       URL.revokeObjectURL(blobURL);
-      try {
-        const doc2 = frame.contentDocument;
-        const scrollW = doc2.body.scrollWidth;
-        const scrollH = doc2.body.scrollHeight;
-        const availW  = wrap.clientWidth-24;
-        const availH  = wrap.clientHeight-24;
-        const scale   = Math.min(availW/scrollW, availH/scrollH, 1);
-        frame.style.width  = scrollW+'px';
-        frame.style.height = scrollH+'px';
-        frame.style.transform = `scale(${scale})`;
-        frame.style.transformOrigin = 'top left';
-        frame.dataset.scale = scale;
-        wrap.style.justifyContent='center';
-      } catch(e) { frame.style.width='100%'; frame.style.height='600px'; }
+      try{const doc2=frame.contentDocument;const scrollW=doc2.body.scrollWidth;const scrollH=doc2.body.scrollHeight;const availW=wrap.clientWidth-24;const availH=wrap.clientHeight-24;const scale=Math.min(availW/scrollW,availH/scrollH,1);frame.style.width=scrollW+'px';frame.style.height=scrollH+'px';frame.style.transform=`scale(${scale})`;frame.style.transformOrigin='top left';frame.dataset.scale=scale;wrap.style.justifyContent='center';}catch(e){frame.style.width='100%';frame.style.height='600px';}
     };
-    frame.src = blobURL;
-    closeReportModal();
-    overlay.classList.add('open');
+    frame.src=blobURL;closeReportModal();
+    document.getElementById('previewOverlay').classList.add('open');
   };
 
-  window.zoomPreview = function(delta) {
-    const frame = document.getElementById('previewFrame');
-    const cur   = parseFloat(frame.dataset.scale||1);
-    const ns    = Math.min(Math.max(cur+delta,0.3),2);
-    frame.dataset.scale = ns;
-    frame.style.transform = `scale(${ns})`;
-    frame.style.transformOrigin = 'top left';
-  };
-
-  window.imprimirDesdePreview = function() {
-    const frame = document.getElementById('previewFrame');
-    const html  = frame._printHTML;
-    if (!html) { toast('⚠️ No hay reporte para imprimir', true); return; }
-    const pw = window.open('','_blank');
-    pw.document.open(); pw.document.write(html); pw.document.close();
-    pw.focus();
-    setTimeout(()=>pw.print(), 800);
-  };
-
-  window.cerrarPreview = function() {
-    document.getElementById('previewOverlay').classList.remove('open');
-    document.getElementById('previewFrame').src='about:blank';
-  };
+  window.zoomPreview=function(delta){const frame=document.getElementById('previewFrame');const cur=parseFloat(frame.dataset.scale||1);const ns=Math.min(Math.max(cur+delta,0.3),2);frame.dataset.scale=ns;frame.style.transform=`scale(${ns})`;frame.style.transformOrigin='top left';};
+  window.imprimirDesdePreview=function(){const frame=document.getElementById('previewFrame');const html=frame._printHTML;if(!html){toast('⚠️ No hay reporte',true);return;}const pw=window.open('','_blank');pw.document.open();pw.document.write(html);pw.document.close();pw.focus();setTimeout(()=>pw.print(),800);};
+  window.cerrarPreview=function(){document.getElementById('previewOverlay').classList.remove('open');document.getElementById('previewFrame').src='about:blank';};
 
   // ─── TOAST ───
-  window.toast = function(msg,error=false) {
-    const c = document.getElementById('toastContainer');
-    const t = document.createElement('div');
-    t.className='toast'+(error?' error':'');
-    t.textContent=msg; c.appendChild(t);
-    setTimeout(()=>t.remove(),(error?6000:3200)+300);
-  };
+  window.toast=function(msg,error=false){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast'+(error?' error':'');t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),(error?6000:3200)+300);};
 </script>
 </body>
 </html>
