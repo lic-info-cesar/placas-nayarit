@@ -843,6 +843,18 @@
     allDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
     setStatus('conectado');
     updateStats();
+    // Sincronizar cajaDocs con allDocs para que editar/borrar funcione
+    // aunque la página se haya recargado
+    if (cajaActiva) {
+      const enFirebase = allDocs.filter(r => r.caja === cajaActiva && r.capturista === capturistaActivo);
+      enFirebase.forEach(r => {
+        if (!cajaDocs.find(c => c.docId === r.docId)) cajaDocs.push(r);
+        else {
+          const idx = cajaDocs.findIndex(c => c.docId === r.docId);
+          if (idx > -1) cajaDocs[idx] = r;
+        }
+      });
+    }
   }, (err) => {
     fbConectado = false;
     setStatus('desconectado');
@@ -1374,9 +1386,9 @@
 
   // ─── EDITAR REGISTRO ───
   window.editarRegistro = function(docId, origen) {
-    // Buscar el doc en cajaDocs (activa) o docsViendo (ver)
+    // Buscar en cajaDocs, docsViendo o allDocs como fallback
     const lista = origen==='activa' ? cajaDocs : docsViendo;
-    const reg = lista.find(r => r.docId === docId);
+    const reg = lista.find(r => r.docId === docId) || allDocs.find(r => r.docId === docId);
     if (!reg) { toast('⚠️ REGISTRO NO ENCONTRADO', true); return; }
     // Convertir fecha dd/mm/yyyy → yyyy-mm-dd para input date
     const partes = reg.fecha.split('/');
@@ -1414,6 +1426,7 @@
         const idx = lista.findIndex(r=>r.docId===docId);
         if (idx>-1) { lista[idx] = {...lista[idx], placa, propietario:prop, cajero, denuncia:den, fecha:fechaFmt}; }
       };
+      actualizar(allDocs); // siempre actualizar allDocs
       if (origen==='activa') {
         actualizar(cajaDocs);
         // Redibujar tabla activa
@@ -1438,6 +1451,7 @@
     try {
       await deleteDoc(doc(db, 'placas', docId));
       if (origen==='activa') {
+        // Quitar de cajaDocs si existe, si no buscar en allDocs
         cajaDocs = cajaDocs.filter(r=>r.docId!==docId);
         misCapturas = cajaDocs.length;
         document.getElementById('statMisCapturas').textContent = misCapturas;
@@ -1549,17 +1563,3 @@
       // Nueva sesión → pedir capturista
       document.getElementById('capturistaModal').classList.add('open');
       setTimeout(() => document.getElementById('inputCapturistaModal').focus(), 300);
-    }
-  });
-
-  // ENTER para registrar
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' &&
-        document.activeElement !== document.getElementById('inputCajaModal') &&
-        document.activeElement !== document.getElementById('inputCapturistaModal')) {
-      window.registrar();
-    }
-  });
-</script>
-</body>
-</html>
