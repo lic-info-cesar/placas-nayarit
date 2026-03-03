@@ -760,9 +760,9 @@
         <input type="text" id="inputCapturistaModal" class="placa-input"
                placeholder="SU NOMBRE COMPLETO" maxlength="60" autocomplete="off"
                style="font-size:1.1rem;text-align:center;letter-spacing:2px;text-transform:uppercase;"
-               onkeydown="if(event.key==='Enter') confirmarCapturista()">
+               onkeydown="if(event.key==='Enter') window.confirmarCapturista && window.confirmarCapturista()">
       </div>
-      <button class="btn-registrar" onclick="confirmarCapturista()">✅ CONTINUAR</button>
+      <button class="btn-registrar" onclick="window.confirmarCapturista && window.confirmarCapturista()">✅ CONTINUAR</button>
     </div>
   </div>
 </div>
@@ -1544,7 +1544,8 @@
   };
 
   // ─── INICIALIZACIÓN ───
-  window.addEventListener('DOMContentLoaded', () => {
+  // Usar load en lugar de DOMContentLoaded para asegurar que el módulo esté listo
+  window.addEventListener('load', () => {
     // Siempre pedir capturista al inicio de sesión
     const capSesion = sessionStorage.getItem('placas_capturista_sesion') || '';
 
