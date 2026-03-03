@@ -771,11 +771,23 @@
 
 <!-- Script puente: expone funciones al HTML -->
 <script>
+  // Variables de sesión accesibles globalmente
+  window._capturistaActivo = '';
+  window._cajaActiva = '';
+  window._cajeroActivo = '';
+
+  // confirmarCapturista funciona SIN depender de Firebase
   function confirmarCapturista(){
     var inp = document.getElementById('inputCapturistaModal');
-    if(!inp || !inp.value.trim()){ if(inp){ inp.style.border='2px solid red'; inp.focus(); } return; }
-    if(window._confirmarCapturista){ window._confirmarCapturista(); return; }
-    setTimeout(confirmarCapturista, 150);
+    if(!inp || !inp.value.trim()){ 
+      if(inp){ inp.style.border='2px solid red'; inp.focus(); } 
+      return; 
+    }
+    window._capturistaActivo = inp.value.trim().toUpperCase();
+    sessionStorage.setItem('placas_capturista_sesion', window._capturistaActivo);
+    document.getElementById('capturistaModal').classList.remove('open');
+    document.getElementById('inputPlaca') && document.getElementById('inputPlaca').focus();
+    if(window._toast) window._toast('✅ BIENVENIDO ' + window._capturistaActivo);
   }
   function cambiarCajero(){ if(window._cambiarCajero) window._cambiarCajero(); }
   function cambiarCaja(){ if(window._cambiarCaja) window._cambiarCaja(); }
@@ -910,6 +922,7 @@
     const captura = document.getElementById('inputCapturistaModal').value.trim().toUpperCase();
     if (!captura) { document.getElementById('inputCapturistaModal').style.border = '2px solid var(--danger)'; document.getElementById('inputCapturistaModal').focus(); return; }
     capturistaActivo = captura;
+    window._capturistaActivo = captura;
     sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
     document.getElementById('capturistaModal').classList.remove('open');
     document.getElementById('inputPlaca').focus();
@@ -1555,7 +1568,7 @@
   };
 
   // ─── TOAST ───
-  window.toast = function(msg, error=false) {
+  window.toast = window._toast = function(msg, error=false) {
     const c = document.getElementById('toastContainer');
     const t = document.createElement('div');
     t.className = 'toast' + (error?' error':'');
