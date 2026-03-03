@@ -760,14 +760,36 @@
         <input type="text" id="inputCapturistaModal" class="placa-input"
                placeholder="SU NOMBRE COMPLETO" maxlength="60" autocomplete="off"
                style="font-size:1.1rem;text-align:center;letter-spacing:2px;text-transform:uppercase;"
-               onkeydown="if(event.key==='Enter') window.confirmarCapturista && window.confirmarCapturista()">
+               onkeydown="if(event.key==='Enter') confirmarCapturista()">
       </div>
-      <button class="btn-registrar" onclick="window.confirmarCapturista && window.confirmarCapturista()">✅ CONTINUAR</button>
+      <button class="btn-registrar" onclick="confirmarCapturista()">✅ CONTINUAR</button>
     </div>
   </div>
 </div>
 
 <!-- modal caja eliminado -->
+
+<!-- Script puente: expone funciones al HTML -->
+<script>
+  function confirmarCapturista(){
+    var inp = document.getElementById('inputCapturistaModal');
+    if(!inp || !inp.value.trim()){ if(inp){ inp.style.border='2px solid red'; inp.focus(); } return; }
+    if(window._confirmarCapturista){ window._confirmarCapturista(); return; }
+    setTimeout(confirmarCapturista, 150);
+  }
+  function cambiarCajero(){ if(window._cambiarCajero) window._cambiarCajero(); }
+  function cambiarCaja(){ if(window._cambiarCaja) window._cambiarCaja(); }
+  function setTipoVehiculo(t){ if(window._setTipoVehiculo) window._setTipoVehiculo(t); }
+  function setPlacaOpcion(op){ if(window._setPlacaOpcion) window._setPlacaOpcion(op); }
+  function registrar(){ if(window._registrar) window._registrar(); }
+  function abrirModalCajas(){ if(window._abrirModalCajas) window._abrirModalCajas(); }
+  function guardarCaja(){ if(window._guardarCaja) window._guardarCaja(); }
+  function imprimirTabla(){ if(window._imprimirTabla) window._imprimirTabla(); }
+  function cerrarVerCaja(){ if(window._cerrarVerCaja) window._cerrarVerCaja(); }
+  function imprimirCajaVer(){ if(window._imprimirCajaVer) window._imprimirCajaVer(); }
+  function guardarEdicion(){ if(window._guardarEdicion) window._guardarEdicion(); }
+  function confirmarAbrirCaja(){ if(window._confirmarAbrirCaja) window._confirmarAbrirCaja(); }
+</script>
 
 <!-- Firebase SDK -->
 <script type="module">
@@ -884,7 +906,7 @@
   setInterval(updateClock, 1000); updateClock();
 
   // ─── MODAL CAPTURISTA ───
-  window.confirmarCapturista = function() {
+  window._confirmarCapturista = function() {
     const captura = document.getElementById('inputCapturistaModal').value.trim().toUpperCase();
     if (!captura) { document.getElementById('inputCapturistaModal').style.border = '2px solid var(--danger)'; document.getElementById('inputCapturistaModal').focus(); return; }
     capturistaActivo = captura;
@@ -896,7 +918,7 @@
 
 
 
-  window.cambiarCajero = function() {
+  window._cambiarCajero = function() {
     const nuevo = prompt('NOMBRE DEL CAJERO:', cajeroActivo);
     if (nuevo && nuevo.trim()) {
       cajeroActivo = nuevo.trim().toUpperCase();
@@ -908,7 +930,7 @@
     }
   };
 
-  window.cambiarCaja = function() {
+  window._cambiarCaja = function() {
     const nuevo = prompt('NÚMERO DE CAJA:', cajaActiva);
     if (nuevo && nuevo.trim()) {
       cajaActiva = nuevo.trim().toUpperCase();
@@ -922,7 +944,7 @@
   };
 
   // ─── TIPO VEHÍCULO ───
-  window.setTipoVehiculo = function(t) {
+  window._setTipoVehiculo = function(t) {
     tipoVehiculo = t; placaOpcion = null;
     document.getElementById('sbVehiculo').classList.toggle('active', t==='vehiculo');
     document.getElementById('sbMoto').classList.toggle('active', t==='moto');
@@ -957,7 +979,7 @@
     cantidad = t === 'moto' ? 1 : 2;
   };
 
-  window.setPlacaOpcion = function(op) {
+  window._setPlacaOpcion = function(op) {
     placaOpcion = op;
     document.querySelectorAll('#placasOpcionesWrap .subtipo-btn').forEach(b => b.classList.remove('active'));
     const ids = { '2placas':'po_2p','1placa_den1':'po_1p1d','0placas_den':'po_0p2d','1placa':'po_1p' };
@@ -1003,7 +1025,7 @@
   }
 
   // ─── REGISTRAR ───
-  window.registrar = async function() {
+  window._registrar = async function() {
     const placa       = document.getElementById('inputPlaca').value.trim().toUpperCase();
     const cajero      = cajeroActivo;
     const propietario = document.getElementById('inputPropietario').value.trim().toUpperCase();
@@ -1133,7 +1155,7 @@
   }
 
   // ─── GUARDAR CAJA Y CERRAR ───
-  window.guardarCaja = async function() {
+  window._guardarCaja = async function() {
     if (cajaDocs.length === 0) { toast('⚠️ NO HAY REGISTROS EN ESTA CAJA', true); return; }
     if (!confirm(`¿CERRAR CAJA ${cajaActiva}?\n${cajaDocs.length} registro(s) ya guardados en Firebase.\nSe limpiará la pantalla para comenzar una caja nueva.`)) return;
 
@@ -1175,7 +1197,7 @@
   };
 
   // ─── IMPRIMIR ───
-  window.imprimirTabla = function() {
+  window._imprimirTabla = function() {
     if (cajaDocs.length === 0) { toast('⚠️ NO HAY REGISTROS PARA IMPRIMIR', true); return; }
 
     const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -1258,7 +1280,7 @@
   };
 
   // ─── ABRIR MODAL CAJAS ───
-  window.abrirModalCajas = function() {
+  window._abrirModalCajas = function() {
     document.getElementById('inputAbrirCaja').value = '';
     document.getElementById('abrirCajaError').style.display = 'none';
     document.getElementById('modalCajasCapturista').textContent = capturistaActivo || '—';
@@ -1267,7 +1289,7 @@
   };
 
   // ─── CONFIRMAR NÚMERO DE CAJA Y VALIDAR ───
-  window.confirmarAbrirCaja = async function() {
+  window._confirmarAbrirCaja = async function() {
     const numCaja = document.getElementById('inputAbrirCaja').value.trim().toUpperCase();
     const errEl   = document.getElementById('abrirCajaError');
 
@@ -1379,7 +1401,7 @@
     });
   }
 
-  window.cerrarVerCaja = function() {
+  window._cerrarVerCaja = function() {
     document.getElementById('modalVerCaja').classList.remove('open');
     cajaViendo = null; docsViendo = [];
   };
@@ -1404,7 +1426,7 @@
   };
 
   // ─── GUARDAR EDICIÓN ───
-  window.guardarEdicion = async function() {
+  window._guardarEdicion = async function() {
     const docId  = document.getElementById('editDocId').value;
     const origen = document.getElementById('editOrigen').value;
     const placa  = document.getElementById('editPlaca').value.trim().toUpperCase();
@@ -1474,7 +1496,7 @@
   };
 
   // ─── IMPRIMIR CAJA VISTA ───
-  window.imprimirCajaVer = function() {
+  window._imprimirCajaVer = function() {
     if (docsViendo.length===0) { toast('⚠️ SIN REGISTROS', true); return; }
     const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
     const hora  = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
@@ -1544,8 +1566,7 @@
   };
 
   // ─── INICIALIZACIÓN ───
-  // Usar load en lugar de DOMContentLoaded para asegurar que el módulo esté listo
-  window.addEventListener('load', () => {
+  window.addEventListener('DOMContentLoaded', () => {
     // Siempre pedir capturista al inicio de sesión
     const capSesion = sessionStorage.getItem('placas_capturista_sesion') || '';
 
