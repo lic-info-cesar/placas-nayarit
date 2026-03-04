@@ -835,7 +835,7 @@
     inp.type = inp.type === 'password' ? 'text' : 'password';
   }
 
-  // confirmarCapturista — dispara evento que el módulo escucha
+  // confirmarCapturista — dispara evento al módulo Firebase
   function confirmarCapturista(){
     document.dispatchEvent(new CustomEvent('doLogin'));
   }
@@ -996,6 +996,7 @@
     const usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
     const password = (document.getElementById('inputPasswordModal').value  || '').trim().toUpperCase();
 
+    console.log('[LOGIN] usuario:', usuario, '| password:', password);
     loginSetError('');
 
     if (!usuario) {
@@ -1013,10 +1014,12 @@
 
     loginSetLoading(true);
     try {
-      // Buscar solo por usuario (sin índice compuesto)
+      console.log('[LOGIN] consultando Firebase colección usuarios...');
       const qSnap = await getDocs(query(usuariosCol, where('usuario', '==', usuario)));
+      console.log('[LOGIN] docs encontrados:', qSnap.size);
 
       if (qSnap.empty) {
+        console.log('[LOGIN] usuario no existe en Firebase');
         loginSetError('❌ Usuario o contraseña incorrectos.');
         loginShakeInput();
         document.getElementById('inputPasswordModal').value = '';
@@ -1027,10 +1030,11 @@
 
       const userDoc  = qSnap.docs[0];
       const userData = userDoc.data();
+      const pwdDB    = (userData.password || '').trim().toUpperCase();
+      console.log('[LOGIN] pwdDB:', pwdDB, '| pwdIngresada:', password, '| activo:', userData.activo);
 
-      // Verificar contraseña en cliente (ambas MAYÚSCULAS)
-      const pwdDB = (userData.password || '').trim().toUpperCase();
       if (pwdDB !== password) {
+        console.log('[LOGIN] contraseña incorrecta');
         loginSetError('❌ Usuario o contraseña incorrectos.');
         loginShakeInput();
         document.getElementById('inputPasswordModal').value = '';
@@ -1039,8 +1043,8 @@
         return;
       }
 
-      // Verificar activo
       if (userData.activo === false) {
+        console.log('[LOGIN] usuario desactivado');
         loginSetError('🚫 Usuario desactivado. Contacte al administrador.');
         loginShakeInput();
         loginSetLoading(false);
@@ -1048,7 +1052,8 @@
       }
 
       // ✅ ACCESO CONCEDIDO
-      capturistaActivo       = usuario;
+      console.log('[LOGIN] ✅ acceso concedido');
+      capturistaActivo         = usuario;
       window._capturistaActivo = usuario;
       sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
       sessionStorage.setItem('placas_capturista_uid', userDoc.id);
@@ -1059,14 +1064,12 @@
       toast('✅ BIENVENIDO ' + capturistaActivo);
 
     } catch(err) {
-      console.error('Login error:', err);
-      loginSetError('⚠ Error de conexión. Verifique su red e intente de nuevo.');
+      console.error('[LOGIN] error:', err);
+      loginSetError('⚠ Error: ' + err.message);
       loginShakeInput();
       loginSetLoading(false);
     }
   });
-
-
 
   window._cambiarCajero = function() {
     const nuevo = prompt('NOMBRE DEL CAJERO:', cajeroActivo);
@@ -1761,3 +1764,9 @@
       // Nueva sesión → pedir capturista
       document.getElementById('capturistaModal').classList.add('open');
       setTimeout(() => document.getElementById('inputCapturistaModal').focus(), 300);
+    }
+  });
+
+</script>
+</body>
+</html>
