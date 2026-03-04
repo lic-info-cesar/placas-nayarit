@@ -835,9 +835,68 @@
     inp.type = inp.type === 'password' ? 'text' : 'password';
   }
 
-  // confirmarCapturista — dispara evento al módulo Firebase
-  function confirmarCapturista(){
-    document.dispatchEvent(new CustomEvent('doLogin'));
+  // LOGIN via Firestore REST API (independiente del módulo ES6)
+  async function confirmarCapturista(){
+    var usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
+    var password = (document.getElementById('inputPasswordModal').value  || '').trim().toUpperCase();
+    var errEl    = document.getElementById('loginError');
+    var btn      = document.getElementById('btnLoginCapturista');
+    var spinner  = document.getElementById('loginSpinner');
+    errEl.style.display = 'none';
+
+    if (!usuario){ errEl.textContent='⚠ Ingrese su nombre de usuario.'; errEl.style.display='block'; document.getElementById('inputCapturistaModal').focus(); return; }
+    if (!password){ errEl.textContent='⚠ Ingrese su contraseña.'; errEl.style.display='block'; document.getElementById('inputPasswordModal').focus(); return; }
+
+    btn.disabled=true; spinner.style.display='block';
+
+    try {
+      var resp = await fetch(
+        'https://firestore.googleapis.com/v1/projects/placas-nayarit/databases/(default)/documents:runQuery?key=AIzaSyBvghDr_PRqTGvZgLronJNhKfCJMdUqGQ4',
+        { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ structuredQuery:{
+            from:[{collectionId:'usuarios'}],
+            where:{fieldFilter:{field:{fieldPath:'usuario'},op:'EQUAL',value:{stringValue:usuario}}},
+            limit:1
+          }})
+        }
+      );
+      var data = await resp.json();
+      console.log('[LOGIN]', data);
+
+      if (!data[0] || !data[0].document){
+        errEl.textContent='❌ Usuario o contraseña incorrectos.'; errEl.style.display='block';
+        document.getElementById('inputPasswordModal').value=''; document.getElementById('inputPasswordModal').focus();
+        btn.disabled=false; spinner.style.display='none'; return;
+      }
+
+      var fields = data[0].document.fields;
+      var pwdDB  = ((fields.password && fields.password.stringValue)||'').trim().toUpperCase();
+      var activo = fields.activo ? fields.activo.booleanValue : true;
+
+      if (pwdDB !== password){
+        errEl.textContent='❌ Usuario o contraseña incorrectos.'; errEl.style.display='block';
+        document.getElementById('inputPasswordModal').value=''; document.getElementById('inputPasswordModal').focus();
+        btn.disabled=false; spinner.style.display='none'; return;
+      }
+      if (activo === false){
+        errEl.textContent='🚫 Usuario desactivado. Contacte al administrador.'; errEl.style.display='block';
+        btn.disabled=false; spinner.style.display='none'; return;
+      }
+
+      // ✅ ACCESO CONCEDIDO
+      window._capturistaActivo = usuario;
+      sessionStorage.setItem('placas_capturista_sesion', usuario);
+      if (typeof window._onLoginOk === 'function') window._onLoginOk(usuario);
+      document.getElementById('capturistaModal').classList.remove('open');
+      btn.disabled=false; spinner.style.display='none';
+      var p = document.getElementById('inputPlaca'); if(p) p.focus();
+      if(window._toast) window._toast('✅ BIENVENIDO ' + usuario);
+
+    } catch(e){
+      console.error('[LOGIN]',e);
+      errEl.textContent='⚠ Error de red: '+e.message; errEl.style.display='block';
+      btn.disabled=false; spinner.style.display='none';
+    }
   }
   function cambiarCajero(){ if(window._cambiarCajero) window._cambiarCajero(); }
   function cambiarCaja(){ if(window._cambiarCaja) window._cambiarCaja(); }
@@ -991,85 +1050,13 @@
     setTimeout(() => { m.style.transform = 'translateX(0)'; }, 240);
   }
 
-  // ─── MODAL CAPTURISTA — validación Firebase ───
-  document.addEventListener('doLogin', async function() {
-    const usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
-    const password = (document.getElementById('inputPasswordModal').value  || '').trim().toUpperCase();
-
-    console.log('[LOGIN] usuario:', usuario, '| password:', password);
-    loginSetError('');
-
-    if (!usuario) {
-      loginSetError('⚠ Ingrese su nombre de usuario.');
-      loginShakeInput();
-      document.getElementById('inputCapturistaModal').focus();
-      return;
-    }
-    if (!password) {
-      loginSetError('⚠ Ingrese su contraseña.');
-      loginShakeInput();
-      document.getElementById('inputPasswordModal').focus();
-      return;
-    }
-
-    loginSetLoading(true);
-    try {
-      console.log('[LOGIN] consultando Firebase colección usuarios...');
-      const qSnap = await getDocs(query(usuariosCol, where('usuario', '==', usuario)));
-      console.log('[LOGIN] docs encontrados:', qSnap.size);
-
-      if (qSnap.empty) {
-        console.log('[LOGIN] usuario no existe en Firebase');
-        loginSetError('❌ Usuario o contraseña incorrectos.');
-        loginShakeInput();
-        document.getElementById('inputPasswordModal').value = '';
-        document.getElementById('inputPasswordModal').focus();
-        loginSetLoading(false);
-        return;
-      }
-
-      const userDoc  = qSnap.docs[0];
-      const userData = userDoc.data();
-      const pwdDB    = (userData.password || '').trim().toUpperCase();
-      console.log('[LOGIN] pwdDB:', pwdDB, '| pwdIngresada:', password, '| activo:', userData.activo);
-
-      if (pwdDB !== password) {
-        console.log('[LOGIN] contraseña incorrecta');
-        loginSetError('❌ Usuario o contraseña incorrectos.');
-        loginShakeInput();
-        document.getElementById('inputPasswordModal').value = '';
-        document.getElementById('inputPasswordModal').focus();
-        loginSetLoading(false);
-        return;
-      }
-
-      if (userData.activo === false) {
-        console.log('[LOGIN] usuario desactivado');
-        loginSetError('🚫 Usuario desactivado. Contacte al administrador.');
-        loginShakeInput();
-        loginSetLoading(false);
-        return;
-      }
-
-      // ✅ ACCESO CONCEDIDO
-      console.log('[LOGIN] ✅ acceso concedido');
-      capturistaActivo         = usuario;
-      window._capturistaActivo = usuario;
-      sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
-      sessionStorage.setItem('placas_capturista_uid', userDoc.id);
-
-      document.getElementById('capturistaModal').classList.remove('open');
-      loginSetLoading(false);
-      document.getElementById('inputPlaca').focus();
-      toast('✅ BIENVENIDO ' + capturistaActivo);
-
-    } catch(err) {
-      console.error('[LOGIN] error:', err);
-      loginSetError('⚠ Error: ' + err.message);
-      loginShakeInput();
-      loginSetLoading(false);
-    }
-  });
+  // ─── CALLBACK post-login ───
+  window._onLoginOk = function(usuario) {
+    capturistaActivo         = usuario;
+    window._capturistaActivo = usuario;
+    const hdr = document.querySelector('.header-info p');
+    if (hdr) hdr.textContent = 'CAPTURISTA: ' + usuario;
+  };
 
   window._cambiarCajero = function() {
     const nuevo = prompt('NOMBRE DEL CAJERO:', cajeroActivo);
