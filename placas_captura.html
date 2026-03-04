@@ -747,25 +747,78 @@
 
 <!-- MODAL 1: CAPTURISTA -->
 <div class="modal-overlay open" id="capturistaModal" style="z-index:10000">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>👤 Bienvenido — Identificación</h3>
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head" style="background:linear-gradient(90deg,#0d1b2a,#1a2a4a);border-bottom:2px solid var(--accent);">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent);">
+        🔐 ACCESO AL SISTEMA
+      </h3>
     </div>
-    <div class="modal-body">
-      <p style="color:var(--text2);margin-bottom:1.5rem;font-size:0.92rem;letter-spacing:0.5px">
-        Ingrese su nombre para continuar. Quedará registrado en todas las capturas de esta sesión.
+    <div class="modal-body" style="padding:1.8rem;">
+      <p style="color:var(--text2);margin-bottom:1.5rem;font-size:0.85rem;letter-spacing:0.5px;text-align:center;">
+        Ingrese sus credenciales para continuar.<br>Su acceso debe estar autorizado por el administrador.
       </p>
-      <div class="form-group" style="margin-bottom:1.5rem">
-        <label>💻 Nombre del Capturista</label>
-        <input type="text" id="inputCapturistaModal" class="placa-input"
-               placeholder="SU NOMBRE COMPLETO" maxlength="60" autocomplete="off"
-               style="font-size:1.1rem;text-align:center;letter-spacing:2px;text-transform:uppercase;"
-               onkeydown="if(event.key==='Enter') confirmarCapturista()">
+
+      <!-- Usuario -->
+      <div class="form-group" style="margin-bottom:1rem">
+        <label style="font-size:0.7rem;letter-spacing:1.5px;color:var(--text2);">💻 USUARIO (NOMBRE DE CAPTURISTA)</label>
+        <input type="text" id="inputCapturistaModal"
+               placeholder="NOMBRE DE USUARIO" maxlength="60" autocomplete="off"
+               style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+                      padding:0.75rem 1rem;color:var(--text);font-family:'Share Tech Mono',monospace;
+                      font-size:1rem;letter-spacing:2px;text-transform:uppercase;outline:none;
+                      transition:all 0.2s;"
+               onkeydown="if(event.key==='Enter') document.getElementById('inputPasswordModal').focus()">
       </div>
-      <button class="btn-registrar" onclick="confirmarCapturista()">✅ CONTINUAR</button>
+
+      <!-- Contraseña -->
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label style="font-size:0.7rem;letter-spacing:1.5px;color:var(--text2);">🔑 CONTRASEÑA</label>
+        <div style="position:relative">
+          <input type="password" id="inputPasswordModal"
+                 placeholder="••••••••" maxlength="40" autocomplete="off"
+                 style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+                        padding:0.75rem 2.8rem 0.75rem 1rem;color:var(--text);
+                        font-family:'Share Tech Mono',monospace;font-size:1.1rem;
+                        letter-spacing:4px;outline:none;transition:all 0.2s;"
+                 onkeydown="if(event.key==='Enter') confirmarCapturista()">
+          <!-- ojo mostrar/ocultar -->
+          <span id="togglePwd" onclick="togglePassword()"
+                style="position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);
+                       cursor:pointer;font-size:1.1rem;opacity:0.6;user-select:none;"
+                title="Mostrar/ocultar">👁</span>
+        </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div id="loginError" style="display:none;background:rgba(255,61,87,0.12);border:1px solid var(--danger);
+           border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;color:var(--danger);
+           font-size:0.85rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-align:center;">
+      </div>
+
+      <!-- Botón -->
+      <button id="btnLoginCapturista" class="btn-registrar" onclick="confirmarCapturista()"
+              style="margin-top:0;">
+        🔐 INGRESAR AL SISTEMA
+      </button>
+
+      <!-- Spinner de validación -->
+      <div id="loginSpinner" style="display:none;text-align:center;margin-top:1rem;
+           color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.85rem;letter-spacing:1px;">
+        <span style="animation:spin 1s linear infinite;display:inline-block;">⏳</span>
+        &nbsp;VALIDANDO CREDENCIALES...
+      </div>
     </div>
   </div>
 </div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+#inputCapturistaModal:focus, #inputPasswordModal:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(0,200,255,0.1);
+  background: rgba(0,200,255,0.03) !important;
+}
+</style>
 
 <!-- modal caja eliminado -->
 
@@ -776,18 +829,20 @@
   window._cajaActiva = '';
   window._cajeroActivo = '';
 
-  // confirmarCapturista funciona SIN depender de Firebase
+  // Mostrar / ocultar contraseña
+  function togglePassword(){
+    var inp = document.getElementById('inputPasswordModal');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  // confirmarCapturista — delega al módulo Firebase (valida en Firestore)
   function confirmarCapturista(){
-    var inp = document.getElementById('inputCapturistaModal');
-    if(!inp || !inp.value.trim()){ 
-      if(inp){ inp.style.border='2px solid red'; inp.focus(); } 
-      return; 
+    if(typeof window._confirmarCapturista === 'function'){
+      window._confirmarCapturista();
+    } else {
+      // Módulo aún no listo: pequeño retry
+      setTimeout(function(){ confirmarCapturista(); }, 150);
     }
-    window._capturistaActivo = inp.value.trim().toUpperCase();
-    sessionStorage.setItem('placas_capturista_sesion', window._capturistaActivo);
-    document.getElementById('capturistaModal').classList.remove('open');
-    document.getElementById('inputPlaca') && document.getElementById('inputPlaca').focus();
-    if(window._toast) window._toast('✅ BIENVENIDO ' + window._capturistaActivo);
   }
   function cambiarCajero(){ if(window._cambiarCajero) window._cambiarCajero(); }
   function cambiarCaja(){ if(window._cambiarCaja) window._cambiarCaja(); }
@@ -917,16 +972,98 @@
   }
   setInterval(updateClock, 1000); updateClock();
 
-  // ─── MODAL CAPTURISTA ───
-  window._confirmarCapturista = function() {
-    const captura = document.getElementById('inputCapturistaModal').value.trim().toUpperCase();
-    if (!captura) { document.getElementById('inputCapturistaModal').style.border = '2px solid var(--danger)'; document.getElementById('inputCapturistaModal').focus(); return; }
-    capturistaActivo = captura;
-    window._capturistaActivo = captura;
-    sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
-    document.getElementById('capturistaModal').classList.remove('open');
-    document.getElementById('inputPlaca').focus();
-    toast('✅ BIENVENIDO ' + capturistaActivo);
+  // ─── COLECCIÓN DE USUARIOS (administrada por el sistema de admin) ───
+  const usuariosCol = collection(db, 'usuarios');
+
+  // ─── HELPERS MODAL LOGIN ───
+  function loginSetError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+  function loginSetLoading(on) {
+    document.getElementById('loginSpinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btnLoginCapturista').disabled = on;
+    document.getElementById('inputCapturistaModal').disabled = on;
+    document.getElementById('inputPasswordModal').disabled = on;
+  }
+  function loginShakeInput() {
+    const m = document.querySelector('#capturistaModal .modal');
+    m.style.animation = 'none';
+    m.style.transform = 'translateX(-8px)';
+    setTimeout(() => { m.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { m.style.transform = 'translateX(-5px)'; }, 160);
+    setTimeout(() => { m.style.transform = 'translateX(0)'; }, 240);
+  }
+
+  // ─── MODAL CAPTURISTA — con validación Firebase ───
+  window._confirmarCapturista = async function() {
+    const usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
+    const password = (document.getElementById('inputPasswordModal').value || '').trim();
+
+    loginSetError('');
+
+    // Validaciones básicas
+    if (!usuario) {
+      document.getElementById('inputCapturistaModal').focus();
+      loginSetError('⚠ Ingrese su nombre de usuario.');
+      loginShakeInput();
+      return;
+    }
+    if (!password) {
+      document.getElementById('inputPasswordModal').focus();
+      loginSetError('⚠ Ingrese su contraseña.');
+      loginShakeInput();
+      return;
+    }
+
+    // Consultar Firebase
+    loginSetLoading(true);
+    try {
+      const q = query(usuariosCol,
+        where('usuario', '==', usuario),
+        where('password', '==', password)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        // No existe o contraseña incorrecta
+        loginSetError('❌ Usuario o contraseña incorrectos.');
+        loginShakeInput();
+        document.getElementById('inputPasswordModal').value = '';
+        document.getElementById('inputPasswordModal').focus();
+        loginSetLoading(false);
+        return;
+      }
+
+      const userData = snap.docs[0].data();
+
+      // Verificar que esté activo
+      if (userData.activo === false) {
+        loginSetError('🚫 Usuario desactivado. Contacte al administrador.');
+        loginShakeInput();
+        loginSetLoading(false);
+        return;
+      }
+
+      // ✅ Acceso concedido
+      capturistaActivo = usuario;
+      window._capturistaActivo = usuario;
+      sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
+      // Guardar también el UID del doc para referencia
+      sessionStorage.setItem('placas_capturista_uid', snap.docs[0].id);
+
+      document.getElementById('capturistaModal').classList.remove('open');
+      loginSetLoading(false);
+      document.getElementById('inputPlaca').focus();
+      toast('✅ BIENVENIDO ' + capturistaActivo);
+
+    } catch(err) {
+      console.error('Login error:', err);
+      loginSetError('⚠ Error de conexión. Verifique su red e intente de nuevo.');
+      loginShakeInput();
+      loginSetLoading(false);
+    }
   };
 
 
@@ -1579,21 +1716,47 @@
   };
 
   // ─── INICIALIZACIÓN ───
-  window.addEventListener('DOMContentLoaded', () => {
-    // Siempre pedir capturista al inicio de sesión
+  window.addEventListener('DOMContentLoaded', async () => {
     const capSesion = sessionStorage.getItem('placas_capturista_sesion') || '';
 
     if (capSesion) {
-      // Sesión activa (recarga)
-      capturistaActivo = capSesion;
-      cajaActiva   = sessionStorage.getItem('placas_caja_sesion') || '';
-      cajeroActivo = sessionStorage.getItem('placas_cajero_sesion') || localStorage.getItem('placas_cajero_activo') || '';
-      document.getElementById('capturistaModal').classList.remove('open');
-      if (cajaActiva)   document.getElementById('cajaIndicadorTxt').textContent   = cajaActiva;
-      if (cajeroActivo) document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
-      document.querySelector('.header-info p').textContent =
-        `CAPTURISTA: ${capturistaActivo}${cajaActiva ? ' | CAJA: '+cajaActiva : ''}`;
-      document.getElementById('inputPlaca').focus();
+      // Sesión previa — re-validar que el usuario siga activo en Firebase
+      try {
+        const q = query(usuariosCol, where('usuario', '==', capSesion));
+        const snap = await getDocs(q);
+        const aun_activo = !snap.empty && snap.docs[0].data().activo !== false;
+
+        if (aun_activo) {
+          // OK — restaurar sesión
+          capturistaActivo = capSesion;
+          cajaActiva   = sessionStorage.getItem('placas_caja_sesion') || '';
+          cajeroActivo = sessionStorage.getItem('placas_cajero_sesion') || localStorage.getItem('placas_cajero_activo') || '';
+          document.getElementById('capturistaModal').classList.remove('open');
+          if (cajaActiva)   document.getElementById('cajaIndicadorTxt').textContent   = cajaActiva;
+          if (cajeroActivo) document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
+          document.querySelector('.header-info p').textContent =
+            `CAPTURISTA: ${capturistaActivo}${cajaActiva ? ' | CAJA: '+cajaActiva : ''}`;
+          document.getElementById('inputPlaca').focus();
+        } else {
+          // Usuario desactivado entre sesiones
+          sessionStorage.clear();
+          document.getElementById('capturistaModal').classList.add('open');
+          loginSetError('🚫 Su acceso fue desactivado. Contacte al administrador.');
+          setTimeout(() => document.getElementById('inputCapturistaModal').focus(), 300);
+        }
+      } catch(e) {
+        // Sin conexión — permitir entrar con sesión cacheada (modo offline)
+        capturistaActivo = capSesion;
+        cajaActiva   = sessionStorage.getItem('placas_caja_sesion') || '';
+        cajeroActivo = sessionStorage.getItem('placas_cajero_sesion') || localStorage.getItem('placas_cajero_activo') || '';
+        document.getElementById('capturistaModal').classList.remove('open');
+        if (cajaActiva)   document.getElementById('cajaIndicadorTxt').textContent   = cajaActiva;
+        if (cajeroActivo) document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
+        document.querySelector('.header-info p').textContent =
+          `CAPTURISTA: ${capturistaActivo}${cajaActiva ? ' | CAJA: '+cajaActiva : ''}`;
+        document.getElementById('inputPlaca').focus();
+        toast('⚠ SIN CONEXIÓN — sesión restaurada en modo offline', true);
+      }
     } else {
       // Nueva sesión → pedir capturista
       document.getElementById('capturistaModal').classList.add('open');
