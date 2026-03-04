@@ -999,7 +999,7 @@
   // ─── MODAL CAPTURISTA — con validación Firebase ───
   window._confirmarCapturista = async function() {
     const usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
-    const password = (document.getElementById('inputPasswordModal').value || '').trim();
+    const password = (document.getElementById('inputPasswordModal').value || '').trim().toUpperCase();
 
     loginSetError('');
 
@@ -1017,17 +1017,14 @@
       return;
     }
 
-    // Consultar Firebase
+    // Consultar Firebase — solo por usuario, verificar password en cliente
+    // (evita requerir índice compuesto en Firestore)
     loginSetLoading(true);
     try {
-      const q = query(usuariosCol,
-        where('usuario', '==', usuario),
-        where('password', '==', password)
-      );
+      const q = query(usuariosCol, where('usuario', '==', usuario));
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        // No existe o contraseña incorrecta
         loginSetError('❌ Usuario o contraseña incorrectos.');
         loginShakeInput();
         document.getElementById('inputPasswordModal').value = '';
@@ -1036,7 +1033,19 @@
         return;
       }
 
-      const userData = snap.docs[0].data();
+      const userDoc  = snap.docs[0];
+      const userData = userDoc.data();
+
+      // Verificar contraseña (ambas en mayúsculas)
+      const pwdFirebase = (userData.password || '').trim().toUpperCase();
+      if (pwdFirebase !== password) {
+        loginSetError('❌ Usuario o contraseña incorrectos.');
+        loginShakeInput();
+        document.getElementById('inputPasswordModal').value = '';
+        document.getElementById('inputPasswordModal').focus();
+        loginSetLoading(false);
+        return;
+      }
 
       // Verificar que esté activo
       if (userData.activo === false) {
@@ -1050,8 +1059,7 @@
       capturistaActivo = usuario;
       window._capturistaActivo = usuario;
       sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
-      // Guardar también el UID del doc para referencia
-      sessionStorage.setItem('placas_capturista_uid', snap.docs[0].id);
+      sessionStorage.setItem('placas_capturista_uid', userDoc.id);
 
       document.getElementById('capturistaModal').classList.remove('open');
       loginSetLoading(false);
