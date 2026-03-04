@@ -835,14 +835,9 @@
     inp.type = inp.type === 'password' ? 'text' : 'password';
   }
 
-  // confirmarCapturista — delega al módulo Firebase (valida en Firestore)
+  // confirmarCapturista — dispara evento que el módulo escucha
   function confirmarCapturista(){
-    if(typeof window._confirmarCapturista === 'function'){
-      window._confirmarCapturista();
-    } else {
-      // Módulo aún no listo: pequeño retry
-      setTimeout(function(){ confirmarCapturista(); }, 150);
-    }
+    document.dispatchEvent(new CustomEvent('doLogin'));
   }
   function cambiarCajero(){ if(window._cambiarCajero) window._cambiarCajero(); }
   function cambiarCaja(){ if(window._cambiarCaja) window._cambiarCaja(); }
@@ -996,35 +991,32 @@
     setTimeout(() => { m.style.transform = 'translateX(0)'; }, 240);
   }
 
-  // ─── MODAL CAPTURISTA — con validación Firebase ───
-  window._confirmarCapturista = async function() {
+  // ─── MODAL CAPTURISTA — validación Firebase ───
+  document.addEventListener('doLogin', async function() {
     const usuario  = (document.getElementById('inputCapturistaModal').value || '').trim().toUpperCase();
-    const password = (document.getElementById('inputPasswordModal').value || '').trim().toUpperCase();
+    const password = (document.getElementById('inputPasswordModal').value  || '').trim().toUpperCase();
 
     loginSetError('');
 
-    // Validaciones básicas
     if (!usuario) {
-      document.getElementById('inputCapturistaModal').focus();
       loginSetError('⚠ Ingrese su nombre de usuario.');
       loginShakeInput();
+      document.getElementById('inputCapturistaModal').focus();
       return;
     }
     if (!password) {
-      document.getElementById('inputPasswordModal').focus();
       loginSetError('⚠ Ingrese su contraseña.');
       loginShakeInput();
+      document.getElementById('inputPasswordModal').focus();
       return;
     }
 
-    // Consultar Firebase — solo por usuario, verificar password en cliente
-    // (evita requerir índice compuesto en Firestore)
     loginSetLoading(true);
     try {
-      const q = query(usuariosCol, where('usuario', '==', usuario));
-      const snap = await getDocs(q);
+      // Buscar solo por usuario (sin índice compuesto)
+      const qSnap = await getDocs(query(usuariosCol, where('usuario', '==', usuario)));
 
-      if (snap.empty) {
+      if (qSnap.empty) {
         loginSetError('❌ Usuario o contraseña incorrectos.');
         loginShakeInput();
         document.getElementById('inputPasswordModal').value = '';
@@ -1033,12 +1025,12 @@
         return;
       }
 
-      const userDoc  = snap.docs[0];
+      const userDoc  = qSnap.docs[0];
       const userData = userDoc.data();
 
-      // Verificar contraseña (ambas en mayúsculas)
-      const pwdFirebase = (userData.password || '').trim().toUpperCase();
-      if (pwdFirebase !== password) {
+      // Verificar contraseña en cliente (ambas MAYÚSCULAS)
+      const pwdDB = (userData.password || '').trim().toUpperCase();
+      if (pwdDB !== password) {
         loginSetError('❌ Usuario o contraseña incorrectos.');
         loginShakeInput();
         document.getElementById('inputPasswordModal').value = '';
@@ -1047,7 +1039,7 @@
         return;
       }
 
-      // Verificar que esté activo
+      // Verificar activo
       if (userData.activo === false) {
         loginSetError('🚫 Usuario desactivado. Contacte al administrador.');
         loginShakeInput();
@@ -1055,8 +1047,8 @@
         return;
       }
 
-      // ✅ Acceso concedido
-      capturistaActivo = usuario;
+      // ✅ ACCESO CONCEDIDO
+      capturistaActivo       = usuario;
       window._capturistaActivo = usuario;
       sessionStorage.setItem('placas_capturista_sesion', capturistaActivo);
       sessionStorage.setItem('placas_capturista_uid', userDoc.id);
@@ -1072,7 +1064,7 @@
       loginShakeInput();
       loginSetLoading(false);
     }
-  };
+  });
 
 
 
