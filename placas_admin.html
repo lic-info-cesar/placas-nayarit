@@ -1319,7 +1319,7 @@
   window.guardarUsuario = async function() {
     const docId    = document.getElementById('usrDocId').value.trim();
     const nombre   = document.getElementById('usrNombre').value.trim().toUpperCase();
-    const password = document.getElementById('usrPassword').value.trim();
+    const password = document.getElementById('usrPassword').value.trim().toUpperCase();
     const activo   = document.getElementById('usrActivo').value === 'true';
     const errEl    = document.getElementById('usrModalError');
     errEl.style.display = 'none';
