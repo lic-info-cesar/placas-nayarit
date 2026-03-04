@@ -450,8 +450,15 @@
       <div class="panel-icon">👤</div>
       <h2>Capturistas en Tiempo Real</h2>
       <div class="live-badge"><div class="live-dot"></div> EN VIVO</div>
+      <button id="btnToggleInactivos" onclick="toggleInactivos()"
+        style="margin-left:1rem;padding:0.35rem 1rem;border-radius:20px;font-family:'Rajdhani',sans-serif;
+               font-size:0.8rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+               background:rgba(255,61,87,0.1);border:1px solid rgba(255,61,87,0.4);color:var(--danger);">
+        🙈 OCULTAR INACTIVOS
+      </button>
     </div>
     <div class="panel-body">
+      <div id="capResumen" style="margin-bottom:0.8rem;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--text2);letter-spacing:0.5px;"></div>
       <div class="cap-grid" id="capGrid">
         <div style="color:var(--text2);text-align:center;padding:3rem;grid-column:1/-1;">Cargando capturistas...</div>
       </div>
@@ -1057,38 +1064,84 @@
   };
 
   // ─── CAPTURISTAS EN VIVO ───
+  let _ocultarInactivos = false;
+
+  window.toggleInactivos = function() {
+    _ocultarInactivos = !_ocultarInactivos;
+    const btn = document.getElementById('btnToggleInactivos');
+    if (_ocultarInactivos) {
+      btn.textContent = '👁 MOSTRAR INACTIVOS';
+      btn.style.background = 'rgba(0,230,118,0.1)';
+      btn.style.borderColor = 'rgba(0,230,118,0.4)';
+      btn.style.color = 'var(--success)';
+    } else {
+      btn.textContent = '🙈 OCULTAR INACTIVOS';
+      btn.style.background = 'rgba(255,61,87,0.1)';
+      btn.style.borderColor = 'rgba(255,61,87,0.4)';
+      btn.style.color = 'var(--danger)';
+    }
+    renderCapturistas();
+  };
+
   window.renderCapturistas = function() {
-    const grid=document.getElementById('capGrid');
-    const hoy=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
-    // Agrupar por capturista
-    const caps={};
-    allDocs.forEach(r=>{
-      const c=r.capturista||'SIN NOMBRE';
-      if (!caps[c]) caps[c]={total:0,hoy:0,motos:0,denuncias:0,ultimo:null,cajas:new Set()};
+    const grid = document.getElementById('capGrid');
+    const hoy  = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+    // Agrupar por capturista (nombre normalizado para evitar duplicados CESAR/Cesar)
+    const caps = {};
+    allDocs.forEach(r => {
+      const c = (r.capturista || 'SIN NOMBRE').toUpperCase().trim();
+      if (!caps[c]) caps[c] = {total:0, hoy:0, denuncias:0, ultimo:null, cajas:new Set()};
       caps[c].total++;
-      if (r.fechaCaptura===hoy) caps[c].hoy++;
-      if (r.tipoVehiculo==='moto') caps[c].motos++;
-      if (r.denuncia&&r.denuncia.trim()) caps[c].denuncias++;
+      if (r.fechaCaptura === hoy) caps[c].hoy++;
+      if (r.denuncia && r.denuncia.trim()) caps[c].denuncias++;
       if (r.caja) caps[c].cajas.add(r.caja);
-      if (!caps[c].ultimo||r.timestamp>caps[c].ultimo.timestamp) caps[c].ultimo=r;
+      if (!caps[c].ultimo || r.timestamp > caps[c].ultimo.timestamp) caps[c].ultimo = r;
     });
-    if (Object.keys(caps).length===0){
-      grid.innerHTML='<div style="color:var(--text2);text-align:center;padding:3rem;grid-column:1/-1;">Sin datos de capturistas</div>';
+
+    if (Object.keys(caps).length === 0) {
+      grid.innerHTML = '<div style="color:var(--text2);text-align:center;padding:3rem;grid-column:1/-1;">Sin datos de capturistas</div>';
+      document.getElementById('capResumen').textContent = '';
       return;
     }
-    grid.innerHTML='';
-    // Ordenar por capturas de hoy descendente
-    Object.entries(caps).sort((a,b)=>b[1].hoy-a[1].hoy).forEach(([nombre,d])=>{
-      const activo=d.hoy>0;
-      const ultimoTexto=d.ultimo?`<strong>${d.ultimo.placa}</strong> — ${d.ultimo.propietario||'—'} (${d.ultimo.hora||'—'})`:'—';
-      const card=document.createElement('div');
-      card.className='cap-card'+(activo?' activo':'');
-      card.innerHTML=`
+
+    // Separar activos e inactivos
+    const entries   = Object.entries(caps).sort((a,b) => b[1].hoy - a[1].hoy);
+    const activos   = entries.filter(([,d]) => d.hoy > 0);
+    const inactivos = entries.filter(([,d]) => d.hoy === 0);
+
+    // Resumen
+    const resumen = document.getElementById('capResumen');
+    resumen.innerHTML = `<span style="color:var(--success);font-weight:700">${activos.length} activo(s) hoy</span>` +
+      (inactivos.length ? ` &nbsp;·&nbsp; <span style="color:var(--text2)">${inactivos.length} sin actividad hoy</span>` + 
+      (_ocultarInactivos ? ' <span style="color:var(--danger);font-size:0.75rem">(ocultos)</span>' : '') : '');
+
+    // Decidir qué mostrar
+    const visibles = _ocultarInactivos ? activos : entries;
+
+    grid.innerHTML = '';
+
+    if (visibles.length === 0) {
+      grid.innerHTML = '<div style="color:var(--text2);text-align:center;padding:2rem;grid-column:1/-1;">No hay capturistas activos en este momento.</div>';
+      return;
+    }
+
+    visibles.forEach(([nombre, d]) => {
+      const activo = d.hoy > 0;
+      const ultimoTexto = d.ultimo
+        ? `<strong>${d.ultimo.placa}</strong> — ${d.ultimo.propietario||'—'} (${d.ultimo.hora||'—'})`
+        : '—';
+      const card = document.createElement('div');
+      card.className = 'cap-card' + (activo ? ' activo' : '');
+      card.innerHTML = `
         <div class="cap-card-header">
-          <div class="cap-avatar">👤</div>
+          <div class="cap-avatar" style="border-color:${activo?'var(--success)':' var(--border)'}">👤</div>
           <div>
             <div class="cap-nombre">${nombre}</div>
-            <div class="cap-estado">${activo?`<span style="color:var(--success)">● ACTIVO HOY</span>`:'<span style="color:var(--text2)">○ Sin actividad hoy</span>'} · ${d.cajas.size} caja(s)</div>
+            <div class="cap-estado">${activo
+              ? '<span style="color:var(--success)">● ACTIVO HOY</span>'
+              : '<span style="color:var(--text2)">○ Sin actividad hoy</span>'
+            } · ${d.cajas.size} caja(s)</div>
           </div>
         </div>
         <div class="cap-stats">
