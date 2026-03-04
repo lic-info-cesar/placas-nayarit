@@ -205,9 +205,121 @@
   .caja-tabla tbody tr:nth-child(even){background:rgba(0,200,255,0.03);}
   .caja-tabla tbody tr:hover{background:rgba(0,200,255,0.07);}
   .caja-tabla td{padding:0.6rem 0.8rem;border-right:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
+
+  /* ── LOGIN ADMIN ── */
+  #adminLoginOverlay{position:fixed;inset:0;background:linear-gradient(135deg,#020812 0%,#0a1628 50%,#020812 100%);
+    z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+    width:420px;max-width:95vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.8),0 0 60px rgba(0,200,255,0.06);}
+  .login-head{background:linear-gradient(135deg,#001a40 0%,#003375 50%,#001a40 100%);
+    padding:2rem;text-align:center;border-bottom:2px solid var(--accent);position:relative;overflow:hidden;}
+  .login-head::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 3s linear infinite;}
+  .login-escudo{font-size:3rem;margin-bottom:0.5rem;}
+  .login-head h2{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;
+    color:var(--accent);letter-spacing:3px;text-transform:uppercase;}
+  .login-head p{font-size:0.72rem;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-top:0.3rem;}
+  .login-body{padding:2rem;}
+  .login-field{margin-bottom:1.2rem;}
+  .login-field label{display:block;font-size:0.68rem;font-weight:700;letter-spacing:2px;
+    text-transform:uppercase;color:var(--text2);margin-bottom:0.5rem;}
+  .login-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:0.85rem 1rem;color:var(--text);font-family:'Share Tech Mono',monospace;
+    font-size:0.95rem;letter-spacing:2px;outline:none;transition:all 0.2s;}
+  .login-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,255,0.1);background:rgba(0,200,255,0.03);}
+  .login-error{display:none;background:rgba(255,61,87,0.1);border:1px solid var(--danger);
+    border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;color:var(--danger);
+    font-size:0.83rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-align:center;}
+  .login-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--accent2),var(--accent));
+    border:none;border-radius:10px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1.1rem;
+    font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,200,255,0.35);}
+  .login-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  .login-shake{animation:shake 0.4s ease;}
+
+  /* ── MÓDULO USUARIOS ── */
+  .usr-toolbar{display:flex;gap:0.8rem;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;}
+  .btn-nuevo-usr{padding:0.6rem 1.4rem;background:rgba(0,230,118,0.12);border:1px solid var(--success);
+    border-radius:8px;color:var(--success);font-family:'Rajdhani',sans-serif;font-size:0.88rem;
+    font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+  .btn-nuevo-usr:hover{background:rgba(0,230,118,0.22);}
+  .usr-search{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;padding:0.55rem 0.9rem;color:var(--text);font-family:'Share Tech Mono',monospace;
+    font-size:0.85rem;outline:none;text-transform:uppercase;}
+  .usr-search:focus{border-color:var(--accent);}
+  .usr-table-wrap{border-radius:8px;border:1px solid var(--border);overflow:hidden;}
+  .usr-table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+  .usr-table thead{background:var(--surface2);}
+  .usr-table th{padding:0.8rem 1rem;text-align:left;font-family:'Rajdhani',sans-serif;
+    font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);
+    border-bottom:1px solid var(--border);}
+  .usr-table td{padding:0.75rem 1rem;border-bottom:1px solid rgba(30,58,95,0.4);vertical-align:middle;}
+  .usr-table tr:last-child td{border-bottom:none;}
+  .usr-table tr:hover td{background:rgba(0,200,255,0.03);}
+  .badge-activo{background:rgba(0,230,118,0.12);color:var(--success);border:1px solid rgba(0,230,118,0.3);
+    padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;}
+  .badge-inactivo{background:rgba(255,61,87,0.12);color:var(--danger);border:1px solid rgba(255,61,87,0.3);
+    padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;}
+  .usr-acc-num{font-family:'Share Tech Mono',monospace;color:var(--text2);font-size:0.8rem;}
+  .pwd-mask{font-family:'Share Tech Mono',monospace;letter-spacing:3px;color:var(--text2);}
+  .btn-usr-toggle{padding:0.28rem 0.7rem;border-radius:6px;font-family:'Rajdhani',sans-serif;
+    font-size:0.75rem;font-weight:700;letter-spacing:0.5px;cursor:pointer;border:1px solid;transition:all 0.2s;}
+  .btn-usr-on{background:rgba(0,230,118,0.1);border-color:var(--success);color:var(--success);}
+  .btn-usr-on:hover{background:rgba(0,230,118,0.22);}
+  .btn-usr-off{background:rgba(255,61,87,0.1);border-color:var(--danger);color:var(--danger);}
+  .btn-usr-off:hover{background:rgba(255,61,87,0.22);}
+  .btn-usr-edit{background:rgba(0,200,255,0.08);border:1px solid var(--accent);color:var(--accent);
+    padding:0.28rem 0.65rem;border-radius:6px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;margin-right:4px;}
+  .btn-usr-edit:hover{background:rgba(0,200,255,0.18);}
+  .btn-usr-del{background:rgba(255,61,87,0.08);border:1px solid rgba(255,61,87,0.35);color:var(--danger);
+    padding:0.28rem 0.65rem;border-radius:6px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;}
+  .btn-usr-del:hover{background:rgba(255,61,87,0.18);}
+  .usr-empty{text-align:center;padding:3rem;color:var(--text2);}
+  .usr-counter{font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);margin-left:auto;}
 </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- PANTALLA DE LOGIN — ADMINISTRADOR             -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="adminLoginOverlay">
+  <div class="login-box">
+    <div class="login-head">
+      <div class="login-escudo">🛡️</div>
+      <h2>ACCESO RESTRINGIDO</h2>
+      <p>SISTEMA DE ADMINISTRACIÓN — NAYARIT</p>
+    </div>
+    <div class="login-body">
+      <div class="login-field">
+        <label>👤 USUARIO ADMINISTRADOR</label>
+        <input type="text" id="adminUsuario" class="login-input"
+               placeholder="NOMBRE DE USUARIO" maxlength="60" autocomplete="off"
+               onkeydown="if(event.key==='Enter') document.getElementById('adminPassword').focus()">
+      </div>
+      <div class="login-field" style="position:relative">
+        <label>🔑 CONTRASEÑA</label>
+        <input type="password" id="adminPassword" class="login-input"
+               placeholder="••••••••••••" maxlength="60" autocomplete="off"
+               style="padding-right:3rem;"
+               onkeydown="if(event.key==='Enter') adminLogin()">
+        <span onclick="var i=document.getElementById('adminPassword');i.type=i.type==='password'?'text':'password';"
+              style="position:absolute;right:1rem;bottom:0.9rem;cursor:pointer;font-size:1.1rem;opacity:0.5;">👁</span>
+      </div>
+      <div class="login-error" id="adminLoginError"></div>
+      <button class="login-btn" id="adminLoginBtn" onclick="adminLogin()">🔐 INGRESAR</button>
+      <div id="adminLoginSpinner" style="display:none;text-align:center;margin-top:1rem;
+           color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:0.85rem;letter-spacing:1px;">
+        ⏳ VERIFICANDO...
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;font-size:0.72rem;color:rgba(148,163,184,0.4);
+     font-family:'Share Tech Mono',monospace;letter-spacing:1px;">
+    ACCESO EXCLUSIVO PARA PERSONAL AUTORIZADO
+  </p>
+</div>
 
 <header>
   <div class="header-escudo">🛡️</div>
@@ -227,10 +339,11 @@
 
 <!-- TABS DE NAVEGACIÓN -->
 <div class="nav-tabs">
-  <button class="nav-tab active" onclick="mostrarSeccion('secRegistros')">📊 Registros</button>
-  <button class="nav-tab" onclick="mostrarSeccion('secCaja')">📦 Abrir Caja</button>
-  <button class="nav-tab" onclick="mostrarSeccion('secCapturistas')">👤 Capturistas en Vivo</button>
-  <button class="nav-tab" onclick="mostrarSeccion('secGraficas')">📈 Gráficas</button>
+  <button class="nav-tab active" onclick="mostrarSeccion('secRegistros',this)">📊 Registros</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secCaja',this)">📦 Abrir Caja</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secCapturistas',this)">👤 Capturistas en Vivo</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secGraficas',this)">📈 Gráficas</button>
+  <button class="nav-tab" onclick="mostrarSeccion('secUsuarios',this)">🔐 Usuarios</button>
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
@@ -384,8 +497,97 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════ -->
+<!-- SEC 5: USUARIOS                              -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="seccion" id="secUsuarios">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon">🔐</div>
+      <h2>Administración de Usuarios</h2>
+      <div class="live-badge" style="margin-left:auto"><div class="live-dot"></div> FIREBASE</div>
+    </div>
+    <div class="panel-body">
+      <div class="usr-toolbar">
+        <button class="btn-nuevo-usr" onclick="abrirModalUsuario()">➕ NUEVO USUARIO</button>
+        <input type="text" class="usr-search" id="usrSearch"
+               placeholder="🔍 Buscar usuario..." oninput="renderUsuarios()">
+        <span class="usr-counter" id="usrCounter">— usuarios</span>
+      </div>
+      <div class="usr-table-wrap">
+        <table class="usr-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>👤 Usuario</th>
+              <th>🔑 Contraseña</th>
+              <th>📊 Estado</th>
+              <th>📅 Creado</th>
+              <th>📝 Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usrTableBody"></tbody>
+        </table>
+        <div class="usr-empty" id="usrEmpty" style="display:none">
+          <div style="font-size:2.5rem;margin-bottom:0.8rem;opacity:0.3">👤</div>
+          <p>No hay usuarios registrados. Crea el primero.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL GESTIÓN USUARIO -->
+<div class="modal-overlay" id="usrModal" style="z-index:1600">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head" style="background:linear-gradient(135deg,#002244,#004488)">
+      <h3 id="usrModalTitle" style="color:var(--accent)">➕ NUEVO USUARIO</h3>
+      <button class="modal-close" onclick="cerrarModalUsuario()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="usrDocId">
+      <div class="form-group" style="margin-bottom:1.1rem">
+        <label>👤 NOMBRE DE USUARIO</label>
+        <input type="text" id="usrNombre" maxlength="60" autocomplete="off"
+               placeholder="NOMBRE DEL CAPTURISTA"
+               style="text-transform:uppercase;letter-spacing:1px;">
+        <p style="font-size:0.7rem;color:var(--text2);margin-top:0.3rem;letter-spacing:0.5px;">
+          Este nombre es el que el capturista usará para entrar al sistema.
+        </p>
+      </div>
+      <div class="form-group" style="margin-bottom:1.1rem;position:relative">
+        <label>🔑 CONTRASEÑA</label>
+        <input type="text" id="usrPassword" maxlength="40" autocomplete="off"
+               placeholder="CONTRASEÑA"
+               style="letter-spacing:2px;padding-right:3rem;">
+        <button onclick="generarPassword()"
+                style="position:absolute;right:0.5rem;bottom:0.55rem;background:rgba(0,200,255,0.1);
+                       border:1px solid var(--accent);color:var(--accent);border-radius:6px;
+                       padding:0.25rem 0.6rem;font-size:0.72rem;font-family:'Rajdhani',sans-serif;
+                       font-weight:700;cursor:pointer;letter-spacing:1px;" title="Generar contraseña">
+          🎲 AUTO
+        </button>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>📊 ESTADO</label>
+        <select id="usrActivo" style="letter-spacing:1px;">
+          <option value="true">✅ ACTIVO — puede entrar al sistema</option>
+          <option value="false">🚫 INACTIVO — acceso bloqueado</option>
+        </select>
+      </div>
+      <div id="usrModalError" style="display:none;background:rgba(255,61,87,0.1);border:1px solid var(--danger);
+           border-radius:8px;padding:0.65rem 1rem;margin-top:1rem;color:var(--danger);
+           font-size:0.83rem;font-family:'Rajdhani',sans-serif;text-align:center;letter-spacing:0.5px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarModalUsuario()">Cancelar</button>
+      <button class="btn-save" id="usrGuardarBtn" onclick="guardarUsuario()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL EDITAR -->
 <div class="modal-overlay" id="editModal" style="z-index:1500">
@@ -473,7 +675,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, where }
+  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, where, addDoc, setDoc, Timestamp }
     from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -488,6 +690,63 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
   const col = collection(db, 'placas');
+  const usuariosCol = collection(db, 'usuarios');
+
+  // ─── CREDENCIALES DEL ADMINISTRADOR (hardcoded, no en Firebase) ───
+  const ADMIN_USER = 'NAHOMY2026';
+  const ADMIN_PASS = 'recaudaciontepic35';
+
+  // ─── LOGIN ADMINISTRADOR ───
+  window.adminLogin = function() {
+    const usuario  = (document.getElementById('adminUsuario').value || '').trim().toUpperCase();
+    const password = (document.getElementById('adminPassword').value || '').trim();
+    const errEl    = document.getElementById('adminLoginError');
+    const box      = document.querySelector('.login-box');
+
+    errEl.style.display = 'none';
+
+    if (!usuario || !password) {
+      errEl.textContent = '⚠ Complete todos los campos.';
+      errEl.style.display = 'block';
+      box.style.animation = 'none';
+      void box.offsetWidth;
+      box.classList.add('login-shake');
+      setTimeout(() => box.classList.remove('login-shake'), 500);
+      return;
+    }
+
+    if (usuario !== ADMIN_USER || password !== ADMIN_PASS) {
+      errEl.textContent = '❌ Usuario o contraseña incorrectos.';
+      errEl.style.display = 'block';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPassword').focus();
+      box.style.animation = 'none';
+      void box.offsetWidth;
+      box.classList.add('login-shake');
+      setTimeout(() => box.classList.remove('login-shake'), 500);
+      return;
+    }
+
+    // ✅ Acceso concedido
+    sessionStorage.setItem('admin_autenticado', '1');
+    document.getElementById('adminLoginOverlay').style.opacity = '0';
+    document.getElementById('adminLoginOverlay').style.transition = 'opacity 0.5s';
+    setTimeout(() => {
+      document.getElementById('adminLoginOverlay').style.display = 'none';
+    }, 500);
+    iniciarSistema();
+  };
+
+  // Verificar si ya hay sesión admin activa
+  window.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('adminUsuario');
+    if (inp) setTimeout(() => inp.focus(), 200);
+
+    if (sessionStorage.getItem('admin_autenticado') === '1') {
+      document.getElementById('adminLoginOverlay').style.display = 'none';
+      iniciarSistema();
+    }
+  });
 
   let allDocs = [];
   let sortCol = 'timestamp', sortDir = -1;
@@ -497,6 +756,27 @@
   let periodografica = 'semana';
   let charts = {};
   let cajaAdminDocs = [];
+  let allUsuarios = [];
+
+  function iniciarSistema() {
+    // ─── LISTENER TIEMPO REAL PLACAS ───
+    const q = query(col, orderBy('timestamp','desc'));
+    onSnapshot(q, (snap) => {
+      const prev = allDocs.length;
+      allDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      setStatus('conectado');
+      updateStats();
+      renderTable(allDocs.length > prev);
+      if (document.getElementById('secCapturistas').classList.contains('active')) renderCapturistas();
+      if (document.getElementById('secGraficas').classList.contains('active')) renderGraficas();
+    }, (err) => { setStatus('desconectado'); console.error(err); });
+
+    // ─── LISTENER TIEMPO REAL USUARIOS ───
+    onSnapshot(query(usuariosCol, orderBy('creadoEn','desc')), (snap) => {
+      allUsuarios = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      renderUsuarios();
+    }, (err) => console.error('Usuarios:', err));
+  }
 
   // ─── MAYÚSCULAS EN TODOS LOS INPUTS ───
   document.addEventListener('input', e => {
@@ -508,11 +788,11 @@
   });
 
   // ─── TABS ───
-  window.mostrarSeccion = function(id) {
+  window.mostrarSeccion = function(id, btnEl) {
     document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
+    if (btnEl) btnEl.classList.add('active');
     if (id === 'secGraficas') renderGraficas();
     if (id === 'secCapturistas') renderCapturistas();
   };
@@ -524,19 +804,6 @@
     el.className = 'fb-status ' + s;
     tx.textContent = s==='conectado'?'EN LÍNEA':s==='desconectado'?'SIN CONEXIÓN':'CONECTANDO...';
   }
-
-  // ─── LISTENER TIEMPO REAL ───
-  const q = query(col, orderBy('timestamp','desc'));
-  onSnapshot(q, (snap) => {
-    const prev = allDocs.length;
-    allDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-    setStatus('conectado');
-    updateStats();
-    renderTable(allDocs.length > prev);
-    // Actualizar capturistas si la sección está activa
-    if (document.getElementById('secCapturistas').classList.contains('active')) renderCapturistas();
-    if (document.getElementById('secGraficas').classList.contains('active')) renderGraficas();
-  }, (err) => { setStatus('desconectado'); console.error(err); });
 
   // ─── RELOJ ───
   function updateClock() {
@@ -964,6 +1231,152 @@
   window.zoomPreview=function(delta){const frame=document.getElementById('previewFrame');const cur=parseFloat(frame.dataset.scale||1);const ns=Math.min(Math.max(cur+delta,0.3),2);frame.dataset.scale=ns;frame.style.transform=`scale(${ns})`;frame.style.transformOrigin='top left';};
   window.imprimirDesdePreview=function(){const frame=document.getElementById('previewFrame');const html=frame._printHTML;if(!html){toast('⚠️ No hay reporte',true);return;}const pw=window.open('','_blank');pw.document.open();pw.document.write(html);pw.document.close();pw.focus();setTimeout(()=>pw.print(),800);};
   window.cerrarPreview=function(){document.getElementById('previewOverlay').classList.remove('open');document.getElementById('previewFrame').src='about:blank';};
+
+  // ─── CRUD USUARIOS ───
+
+  window.renderUsuarios = function() {
+    const q = (document.getElementById('usrSearch')?.value || '').trim().toUpperCase();
+    const data = q ? allUsuarios.filter(u => (u.usuario||'').includes(q)) : [...allUsuarios];
+    const tbody = document.getElementById('usrTableBody');
+    const empty = document.getElementById('usrEmpty');
+    document.getElementById('usrCounter').textContent = `${data.length} usuario(s)`;
+    if (!data.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map((u, i) => {
+      const activo = u.activo !== false;
+      const fecha = u.creadoEn?.toDate ? u.creadoEn.toDate().toLocaleDateString('es-MX', {day:'2-digit',month:'2-digit',year:'numeric'}) : (u.creadoEn || '—');
+      const pwdDisplay = (u.password || '').replace(/./g, '●');
+      return `<tr>
+        <td class="usr-acc-num">${i + 1}</td>
+        <td style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:1px;color:var(--text)">${u.usuario || '—'}</td>
+        <td>
+          <span class="pwd-mask" id="pwd_mask_${u.docId}">${pwdDisplay}</span>
+          <span id="pwd_clear_${u.docId}" style="display:none;font-family:'Share Tech Mono',monospace;color:var(--warning);letter-spacing:2px;">${u.password || ''}</span>
+          <button onclick="togglePwd('${u.docId}')"
+                  style="background:none;border:none;cursor:pointer;font-size:0.85rem;opacity:0.5;margin-left:4px;"
+                  title="Mostrar/Ocultar">👁</button>
+        </td>
+        <td>
+          <span class="${activo ? 'badge-activo' : 'badge-inactivo'}">${activo ? '✅ ACTIVO' : '🚫 INACTIVO'}</span>
+        </td>
+        <td style="font-size:0.78rem;color:var(--text2)">${fecha}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-usr-edit" onclick="abrirModalUsuario('${u.docId}')">✏️ Editar</button>
+          <button class="btn-usr-toggle ${activo ? 'btn-usr-off' : 'btn-usr-on'}"
+                  onclick="toggleUsuarioActivo('${u.docId}',${activo})">
+            ${activo ? '🚫 Desactivar' : '✅ Activar'}
+          </button>
+          <button class="btn-usr-del" onclick="eliminarUsuario('${u.docId}','${u.usuario}')">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.togglePwd = function(docId) {
+    const mask  = document.getElementById('pwd_mask_'  + docId);
+    const clear = document.getElementById('pwd_clear_' + docId);
+    if (!mask || !clear) return;
+    const showing = clear.style.display !== 'none';
+    mask.style.display  = showing ? '' : 'none';
+    clear.style.display = showing ? 'none' : '';
+  };
+
+  window.abrirModalUsuario = function(docId = null) {
+    document.getElementById('usrDocId').value    = docId || '';
+    document.getElementById('usrNombre').value   = '';
+    document.getElementById('usrPassword').value = '';
+    document.getElementById('usrActivo').value   = 'true';
+    document.getElementById('usrModalError').style.display = 'none';
+    document.getElementById('usrModalTitle').textContent = docId ? '✏️ EDITAR USUARIO' : '➕ NUEVO USUARIO';
+
+    if (docId) {
+      const u = allUsuarios.find(x => x.docId === docId);
+      if (u) {
+        document.getElementById('usrNombre').value   = u.usuario   || '';
+        document.getElementById('usrPassword').value = u.password  || '';
+        document.getElementById('usrActivo').value   = String(u.activo !== false);
+      }
+    }
+    document.getElementById('usrModal').classList.add('open');
+    setTimeout(() => document.getElementById('usrNombre').focus(), 150);
+  };
+
+  window.cerrarModalUsuario = function() {
+    document.getElementById('usrModal').classList.remove('open');
+  };
+
+  window.generarPassword = function() {
+    const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
+    let pwd = '';
+    for (let i = 0; i < 8; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('usrPassword').value = pwd.toUpperCase();
+  };
+
+  window.guardarUsuario = async function() {
+    const docId    = document.getElementById('usrDocId').value.trim();
+    const nombre   = document.getElementById('usrNombre').value.trim().toUpperCase();
+    const password = document.getElementById('usrPassword').value.trim();
+    const activo   = document.getElementById('usrActivo').value === 'true';
+    const errEl    = document.getElementById('usrModalError');
+    errEl.style.display = 'none';
+
+    if (!nombre)   { errEl.textContent = '⚠ El nombre de usuario no puede estar vacío.'; errEl.style.display = 'block'; return; }
+    if (!password) { errEl.textContent = '⚠ La contraseña no puede estar vacía.'; errEl.style.display = 'block'; return; }
+    if (password.length < 4) { errEl.textContent = '⚠ La contraseña debe tener al menos 4 caracteres.'; errEl.style.display = 'block'; return; }
+
+    // Verificar duplicado de nombre (excepto al editar el mismo)
+    const duplicado = allUsuarios.find(u => u.usuario === nombre && u.docId !== docId);
+    if (duplicado) { errEl.textContent = `⚠ El usuario "${nombre}" ya existe.`; errEl.style.display = 'block'; return; }
+
+    document.getElementById('usrGuardarBtn').disabled = true;
+    document.getElementById('usrGuardarBtn').textContent = '⏳ Guardando...';
+
+    try {
+      if (docId) {
+        // Editar
+        await updateDoc(doc(db, 'usuarios', docId), { usuario: nombre, password, activo });
+        toast('✅ Usuario actualizado correctamente');
+      } else {
+        // Nuevo
+        await addDoc(usuariosCol, {
+          usuario: nombre,
+          password,
+          activo,
+          creadoEn: Timestamp.now()
+        });
+        toast('✅ Usuario creado correctamente');
+      }
+      cerrarModalUsuario();
+    } catch(e) {
+      errEl.textContent = '❌ Error al guardar. Revisa la conexión.';
+      errEl.style.display = 'block';
+      console.error(e);
+    } finally {
+      document.getElementById('usrGuardarBtn').disabled = false;
+      document.getElementById('usrGuardarBtn').textContent = '💾 GUARDAR';
+    }
+  };
+
+  window.toggleUsuarioActivo = async function(docId, estaActivo) {
+    const accion = estaActivo ? 'desactivar' : 'activar';
+    if (!confirm(`¿Deseas ${accion} este usuario? ${estaActivo ? 'No podrá entrar al sistema de captura.' : 'Podrá entrar al sistema de captura.'}`)) return;
+    try {
+      await updateDoc(doc(db, 'usuarios', docId), { activo: !estaActivo });
+      toast(`✅ Usuario ${estaActivo ? 'desactivado' : 'activado'}`);
+    } catch(e) { toast('❌ Error al actualizar estado', true); console.error(e); }
+  };
+
+  window.eliminarUsuario = async function(docId, nombre) {
+    if (!confirm(`¿Eliminar permanentemente al usuario "${nombre}"?\nEsta acción no se puede deshacer.`)) return;
+    try {
+      await deleteDoc(doc(db, 'usuarios', docId));
+      toast(`🗑️ Usuario "${nombre}" eliminado`);
+    } catch(e) { toast('❌ Error al eliminar', true); console.error(e); }
+  };
 
   // ─── TOAST ───
   window.toast=function(msg,error=false){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast'+(error?' error':'');t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),(error?6000:3200)+300);};
