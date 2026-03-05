@@ -1640,11 +1640,17 @@
     if (docsViendo.length===0) { toast('⚠️ SIN REGISTROS', true); return; }
     const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
     const hora  = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+    // ─── Resumen de totales ───
+    const totalPlacas = docsViendo.reduce((s,r)=>s+(r.cantidad||0),0);
+    const totalDen    = docsViendo.filter(r=>r.denuncia&&r.denuncia.trim()).length;
+    const totalMotos  = docsViendo.filter(r=>r.tipoVehiculo==='moto').length;
+
     let filas = '';
     docsViendo.forEach((r,i) => {
       const opLabel = {'2placas':'2 Placas','1placa':'1 Placa','1placa_den1':'1+Denuncia','0placas_den':'Solo Den.'}[r.placaOpcion]||r.placaOpcion;
       const tipoLabel = r.tipoVehiculo==='moto'?'MOTO':'VEHÍCULO';
-      const bg = i%2===1?'#f7f7f7':'#ffffff';
+      const bg = i%2===1?'#f5f5f5':'#ffffff';
       filas += `<tr style="background:${bg}">
         <td style="text-align:center">${i+1}</td>
         <td>${r.folio}</td>
@@ -1657,20 +1663,23 @@
         <td>${r.denuncia||'—'}</td>
       </tr>`;
     });
+
     const v = window.open('','_blank');
     v.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
       <title>Caja ${cajaViendo}</title>
       <style>
-        @page{size:letter portrait;margin:8mm 10mm}
+        @page{size:letter portrait;margin:10mm 12mm}
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:Arial,sans-serif;background:#fff;color:#000}
-        .enc{text-align:center;border-bottom:1px solid #aaa;padding-bottom:4mm;margin-bottom:3mm}
-        .enc h2{font-size:12pt;font-weight:bold;letter-spacing:1px}
-        .enc p{font-size:7.5pt;color:#333}
+        body{font-family:Arial,sans-serif;background:#fff;color:#000;font-size:8pt}
+        .enc{text-align:center;border-bottom:2px solid #003366;padding-bottom:4mm;margin-bottom:3mm}
+        .enc h2{font-size:11pt;font-weight:bold;letter-spacing:1px;color:#003366}
+        .enc p{font-size:7.5pt;color:#333;margin-top:2px}
+        .resumen{display:flex;gap:12px;margin-bottom:4mm;padding:3px 6px;background:#eef2ff;border:0.5px solid #c5d3f0;border-radius:3px;font-size:7pt}
+        .resumen span{color:#003366;font-weight:bold}
         table{width:100%;border-collapse:collapse;font-size:7pt;table-layout:fixed}
-        thead tr{background:#eee}
-        th{padding:3px 4px;font-size:6.5pt;font-weight:bold;border:0.5px solid #bbb;text-align:left;white-space:nowrap}
-        td{padding:2px 4px;border:0.5px solid #ddd;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        thead tr{background:#003366}
+        th{padding:3px 4px;font-size:6.5pt;font-weight:bold;border:0.5px solid #002244;text-align:left;white-space:nowrap;color:#fff}
+        td{padding:2px 4px;border:0.5px solid #ddd;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         th:nth-child(1),td:nth-child(1){width:4%;text-align:center}
         th:nth-child(2),td:nth-child(2){width:9%}
         th:nth-child(3),td:nth-child(3){width:10%;font-weight:bold}
@@ -1680,15 +1689,72 @@
         th:nth-child(7),td:nth-child(7){width:12%}
         th:nth-child(8),td:nth-child(8){width:9%}
         th:nth-child(9),td:nth-child(9){width:12%}
+        /* ── PIE DE PÁGINA FIRMAS ── */
+        .firmas{
+          margin-top:14mm;
+          display:flex;
+          justify-content:space-around;
+          align-items:flex-end;
+          page-break-inside:avoid;
+        }
+        .firma-bloque{
+          text-align:center;
+          width:28%;
+        }
+        .firma-linea{
+          border-top:1.2px solid #000;
+          margin-bottom:4px;
+        }
+        .firma-rol{
+          font-size:8pt;
+          font-weight:bold;
+          letter-spacing:1px;
+          text-transform:uppercase;
+          color:#003366;
+        }
+        .firma-nombre{
+          font-size:7.5pt;
+          margin-top:2px;
+          text-transform:uppercase;
+          color:#222;
+        }
       </style></head><body>
+
       <div class="enc">
         <h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
-        <p>CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaViendo} | FECHA IMP: ${fecha} ${hora} | REGISTROS: ${docsViendo.length}</p>
+        <p>CAPTURISTA: ${capturistaActivo} &nbsp;|&nbsp; CAJA: ${cajaViendo} &nbsp;|&nbsp; IMPRESO: ${fecha} ${hora} &nbsp;|&nbsp; REGISTROS: ${docsViendo.length}</p>
       </div>
+
+      <div class="resumen">
+        Registros: <span>${docsViendo.length}</span> &nbsp;&nbsp;
+        Total placas: <span>${totalPlacas}</span> &nbsp;&nbsp;
+        Motos: <span>${totalMotos}</span> &nbsp;&nbsp;
+        Denuncias: <span>${totalDen}</span>
+      </div>
+
       <table><thead><tr>
         <th>#</th><th>FOLIO</th><th>PLACA</th><th>TIPO</th><th>PLACAS</th>
         <th>PROPIETARIO</th><th>CAJERO</th><th>FECHA BAJA</th><th>DENUNCIA</th>
       </tr></thead><tbody>${filas}</tbody></table>
+
+      <div class="firmas">
+        <div class="firma-bloque">
+          <div class="firma-linea"></div>
+          <div class="firma-rol">AUTORIZO</div>
+          <div class="firma-nombre">C. GRACIELA NAOMI GONZALES MOLINA</div>
+        </div>
+        <div class="firma-bloque">
+          <div class="firma-linea"></div>
+          <div class="firma-rol">ELABORÓ</div>
+          <div class="firma-nombre">${capturistaActivo}</div>
+        </div>
+        <div class="firma-bloque">
+          <div class="firma-linea"></div>
+          <div class="firma-rol">RECIBIÓ</div>
+          <div class="firma-nombre">SERGIO PLASENCIA</div>
+        </div>
+      </div>
+
     </body></html>`);
     v.document.close(); v.focus();
     setTimeout(()=>{ v.print(); v.close(); },500);
