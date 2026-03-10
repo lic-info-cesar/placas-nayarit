@@ -938,6 +938,20 @@
   let misCapturas   = 0;
   let cajaActiva    = '';
   let capturistaActivo = '';
+
+  // ─── MAPA DE NOMBRES COMPLETOS ───
+  const NOMBRES_COMPLETOS = {
+    'JORGE':    'JORGE ANTONIO ARELLANO VARGAS',
+    'ARELLANO': 'JORGE ANTONIO ARELLANO VARGAS',
+    'SANDRA':   'SANDRA E. BARRERA RAMIREZ',
+    'JUAN':     'JUAN MEJIA MARRUFO',
+    'NAOMI':    'GRACIELA NAOMI GONZALEZ MOLINA'
+  };
+  function nombreCompleto(usuario) {
+    if (!usuario) return '';
+    const clave = usuario.trim().toUpperCase();
+    return NOMBRES_COMPLETOS[clave] || clave;
+  }
   let cajeroActivo  = '';
   let tipoVehiculo  = null, placaOpcion = null, cantidad = 0;
 
@@ -1395,7 +1409,7 @@
 <body>
   <div class="encabezado">
     <h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
-    <p>CAPTURISTA: ${capturistaActivo} &nbsp;|&nbsp; CAJA: ${cajaActiva} &nbsp;|&nbsp; FECHA: ${fecha} &nbsp;|&nbsp; HORA: ${hora} &nbsp;|&nbsp; TOTAL REGISTROS: ${cajaDocs.length}</p>
+    <p>CAPTURISTA: ${nombreCompleto(capturistaActivo)} &nbsp;|&nbsp; CAJA: ${cajaActiva} &nbsp;|&nbsp; FECHA: ${fecha} &nbsp;|&nbsp; HORA: ${hora} &nbsp;|&nbsp; TOTAL REGISTROS: ${cajaDocs.length}</p>
   </div>
   <table>
     <thead>
@@ -1722,7 +1736,7 @@
 
       <div class="enc">
         <h2>CAPTURA DE BAJAS — REEMPLACAMIENTO NAYARIT</h2>
-        <p>CAPTURISTA: ${capturistaActivo} &nbsp;|&nbsp; CAJA: ${cajaViendo} &nbsp;|&nbsp; IMPRESO: ${fecha} ${hora} &nbsp;|&nbsp; REGISTROS: ${docsViendo.length}</p>
+        <p>CAPTURISTA: ${nombreCompleto(capturistaActivo)} &nbsp;|&nbsp; CAJA: ${cajaViendo} &nbsp;|&nbsp; IMPRESO: ${fecha} ${hora} &nbsp;|&nbsp; REGISTROS: ${docsViendo.length}</p>
       </div>
 
       <div class="resumen">
@@ -1746,7 +1760,7 @@
         <div class="firma-bloque">
           <div class="firma-linea"></div>
           <div class="firma-rol">ELABORÓ</div>
-          <div class="firma-nombre">${capturistaActivo}</div>
+          <div class="firma-nombre">${nombreCompleto(capturistaActivo)}</div>
         </div>
         <div class="firma-bloque">
           <div class="firma-linea"></div>
