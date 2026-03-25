@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" data-theme="cyber">
 <head>
@@ -6,47 +7,11 @@
 <title>Captura de Placas — Nayarit</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
-  /* ── TEMA: CYBER (azul neón — default) ── */
-  :root, [data-theme="cyber"] {
+  :root {
     --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
     --border: #1e3a5f; --accent: #00c8ff; --accent2: #0066cc;
     --success: #00e676; --warning: #ffab00; --danger: #ff3d57;
     --text: #e2e8f0; --text2: #94a3b8;
-  }
-  /* ── TEMA: NAVY (azul marino oscuro) ── */
-  [data-theme="navy"] {
-    --bg: #0b1120; --surface: #131d30; --surface2: #1a2845;
-    --border: #1e3560; --accent: #4a9eff; --accent2: #1565c0;
-    --success: #00e676; --warning: #ffab00; --danger: #ff3d57;
-    --text: #dce8ff; --text2: #7a9cc0;
-  }
-  /* ── TEMA: SLATE (gris oscuro) ── */
-  [data-theme="slate"] {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
-    --border: #2e3347; --accent: #a0aec0; --accent2: #667eea;
-    --success: #48bb78; --warning: #ed8936; --danger: #fc5c7d;
-    --text: #e2e8f0; --text2: #718096;
-  }
-  /* ── TEMA: EMERALD (verde esmeralda) ── */
-  [data-theme="emerald"] {
-    --bg: #071510; --surface: #0d1f17; --surface2: #132b20;
-    --border: #1a4030; --accent: #00e676; --accent2: #00897b;
-    --success: #69f0ae; --warning: #ffab00; --danger: #ff3d57;
-    --text: #d4f5e9; --text2: #5a9e7a;
-  }
-  /* ── TEMA: BRONZE (bronce/café oscuro) ── */
-  [data-theme="bronze"] {
-    --bg: #130f09; --surface: #1e1710; --surface2: #2a2015;
-    --border: #3d2e18; --accent: #c9882a; --accent2: #8b5e1a;
-    --success: #81c784; --warning: #ffcc02; --danger: #ef5350;
-    --text: #f0e0c0; --text2: #9e7e50;
-  }
-  /* ── TEMA: MATRIX (verde matrix) ── */
-  [data-theme="matrix"] {
-    --bg: #000d00; --surface: #001500; --surface2: #002000;
-    --border: #004400; --accent: #39ff14; --accent2: #00bb00;
-    --success: #39ff14; --warning: #ffe500; --danger: #ff3d57;
-    --text: #ccffcc; --text2: #4a9e4a;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -80,32 +45,6 @@
   }
   .header-info p { font-size:0.8rem; color:var(--text2); letter-spacing:1px; text-transform:uppercase; }
   .header-clock { margin-left:auto; text-align:right; }
-
-  /* ── THEME PICKER ── */
-  .theme-picker {
-    display:flex; align-items:center; gap:0.45rem;
-    background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1);
-    border-radius:30px; padding:0.35rem 0.75rem; margin-left:1rem;
-  }
-  .theme-label {
-    font-family:'Rajdhani',sans-serif; font-size:0.78rem; font-weight:600;
-    letter-spacing:1px; color:var(--text2); white-space:nowrap; margin-right:0.2rem;
-  }
-  .theme-btn {
-    width:26px; height:26px; border-radius:50%; border:2px solid transparent;
-    cursor:pointer; transition:all 0.2s; flex-shrink:0;
-    box-shadow:0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2);
-    position:relative;
-  }
-  .theme-btn:hover {
-    transform:scale(1.18);
-    box-shadow:0 4px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3);
-  }
-  .theme-btn.active {
-    border-color:#fff;
-    box-shadow:0 0 0 3px rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.6);
-    transform:scale(1.12);
-  }
   .clock-time { font-family:'Share Tech Mono',monospace; font-size:2rem; color:var(--accent); text-shadow:0 0 10px rgba(0,200,255,0.5); }
   .clock-date { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--text2); }
 
@@ -556,18 +495,6 @@
     <div class="fb-dot"></div>
     <span id="fbStatusTxt">CONECTANDO...</span>
   </div>
-
-  <!-- SELECTOR DE TEMAS -->
-  <div class="theme-picker">
-    <span class="theme-label">🎨 Tema:</span>
-    <button class="theme-btn active" data-theme="cyber"    title="Cyber"    style="background:radial-gradient(circle at 35% 35%,#3af,#006 70%)"></button>
-    <button class="theme-btn"        data-theme="navy"     title="Navy"     style="background:radial-gradient(circle at 35% 35%,#4a9eff,#0b1a3a 70%)"></button>
-    <button class="theme-btn"        data-theme="slate"    title="Slate"    style="background:radial-gradient(circle at 35% 35%,#778,#1a1d27 70%)"></button>
-    <button class="theme-btn"        data-theme="emerald"  title="Esmeralda" style="background:radial-gradient(circle at 35% 35%,#00e676,#071510 70%)"></button>
-    <button class="theme-btn"        data-theme="bronze"   title="Bronce"   style="background:radial-gradient(circle at 35% 35%,#c9882a,#130f09 70%)"></button>
-    <button class="theme-btn"        data-theme="matrix"   title="Matrix"   style="background:radial-gradient(circle at 35% 35%,#39ff14,#000d00 70%)"></button>
-  </div>
-
   <div class="header-clock">
     <div class="clock-time" id="clockTime">00:00:00</div>
     <div class="clock-date" id="clockDate">—</div>
@@ -609,34 +536,6 @@
         </div>
       </div>
     </div>
-    <!-- AVISO: caja/cajero sin configurar -->
-    <div id="avisoSinCajaCajero" style="display:none;
-      background:linear-gradient(90deg,rgba(255,61,87,0.18),rgba(255,171,0,0.12));
-      border-bottom:2px solid var(--danger); padding:0.6rem 1.2rem;
-      display:flex; align-items:center; gap:0.8rem; animation:parpadeo 1.4s ease infinite;">
-      <span style="font-size:1.3rem;">⚠️</span>
-      <span id="avisoSinCajaCajeroTxt" style="font-family:'Rajdhani',sans-serif;font-size:0.95rem;
-        font-weight:700;letter-spacing:1px;color:var(--danger);text-transform:uppercase;">
-        DEFINA EL NÚMERO DE CAJA Y EL NOMBRE DEL CAJERO ANTES DE CAPTURAR
-      </span>
-      <span style="margin-left:auto;font-size:0.78rem;color:var(--text2);font-family:'Exo 2',sans-serif;">
-        Haz clic en los indicadores 📦 / 🧑‍💼 del encabezado
-      </span>
-    </div>
-    <style>
-      @keyframes parpadeo {
-        0%,100% { opacity:1; } 50% { opacity:0.65; }
-      }
-      .indicador-alerta {
-        animation: indicadorPulso 0.7s ease 3 !important;
-        box-shadow: 0 0 0 4px rgba(255,61,87,0.5) !important;
-      }
-      @keyframes indicadorPulso {
-        0%,100% { transform:scale(1); }
-        40%      { transform:scale(1.08); }
-      }
-    </style>
-
     <div class="panel-body">
 
       <!-- FILA 1: Placa | Tipo vehículo | Opciones placas | Denuncia -->
@@ -1094,8 +993,11 @@
     if (!fbConectado) setStatus('desconectado');
   }, 8000);
 
-  // ─── ESCUCHAR CAMBIOS EN TIEMPO REAL ───
-  const q = query(col, orderBy('timestamp', 'desc'));
+  // ─── ESCUCHAR CAMBIOS EN TIEMPO REAL (solo registros de HOY) ───
+  const _hoyInicio = new Date(); _hoyInicio.setHours(0,0,0,0);
+  const q = query(col,
+    where('timestamp', '>=', Timestamp.fromDate(_hoyInicio)),
+    orderBy('timestamp', 'desc'));
   onSnapshot(q, (snap) => {
     clearTimeout(timeoutConexion);
     fbConectado = true;
@@ -1183,8 +1085,6 @@
       document.getElementById('cajeroIndicadorTxt').textContent = cajeroActivo;
       actualizarInfoCaja();
       toast('✅ CAJERO: ' + cajeroActivo);
-      // Ocultar banner si ya están los dos
-      if (cajaActiva && cajeroActivo) document.getElementById('avisoSinCajaCajero').style.display = 'none';
     }
   };
 
@@ -1198,8 +1098,6 @@
         `CAPTURISTA: ${capturistaActivo} | CAJA: ${cajaActiva}`;
       actualizarInfoCaja();
       toast('✅ CAJA ACTUALIZADA: ' + cajaActiva);
-      // Ocultar banner si ya están los dos
-      if (cajaActiva && cajeroActivo) document.getElementById('avisoSinCajaCajero').style.display = 'none';
     }
   };
 
@@ -1292,44 +1190,7 @@
     const fechaPago   = document.getElementById('inputFechaPago').value;
 
     if (!placa)        { toast('⚠️ INGRESE EL NÚMERO DE PLACA', true); return; }
-
-    // ── VALIDACIÓN CAJA + CAJERO (ambos obligatorios) ──
-    const faltaCaja   = !cajaActiva;
-    const faltaCajero = !cajero;
-    if (faltaCaja || faltaCajero) {
-      // Construir mensaje descriptivo
-      let txtFaltan = [];
-      if (faltaCaja)   txtFaltan.push('NÚMERO DE CAJA (📦)');
-      if (faltaCajero) txtFaltan.push('NOMBRE DEL CAJERO (🧑‍💼)');
-      const msgAviso = 'FALTA DEFINIR: ' + txtFaltan.join(' Y ');
-
-      // Mostrar banner persistente
-      const banner = document.getElementById('avisoSinCajaCajero');
-      document.getElementById('avisoSinCajaCajeroTxt').textContent = msgAviso;
-      banner.style.display = 'flex';
-
-      // Pulsar visualmente los indicadores faltantes
-      if (faltaCaja) {
-        const el = document.getElementById('cajaIndicador');
-        el.classList.remove('indicador-alerta');
-        void el.offsetWidth; // reflow para reiniciar animación
-        el.classList.add('indicador-alerta');
-        setTimeout(() => el.classList.remove('indicador-alerta'), 2200);
-      }
-      if (faltaCajero) {
-        const el = document.getElementById('cajeroIndicador');
-        el.classList.remove('indicador-alerta');
-        void el.offsetWidth;
-        el.classList.add('indicador-alerta');
-        setTimeout(() => el.classList.remove('indicador-alerta'), 2200);
-      }
-
-      toast('⚠️ ' + msgAviso, true);
-      return;
-    }
-    // Ocultar banner si ya están OK
-    document.getElementById('avisoSinCajaCajero').style.display = 'none';
-
+    if (!cajero)       { toast('⚠️ DEFINA EL CAJERO — CLICK EN EL ÍCONO 🧑‍💼', true); return; }
     if (!tipoVehiculo) { toast('⚠️ SELECCIONE EL TIPO DE VEHÍCULO', true); return; }
     if (!placaOpcion)  { toast('⚠️ SELECCIONE LA OPCIÓN DE PLACAS', true); return; }
     if (!propietario)  { toast('⚠️ INGRESE EL NOMBRE DEL PROPIETARIO', true); return; }
@@ -1850,13 +1711,13 @@
         .firmas{
           margin-top:14mm;
           display:flex;
-          justify-content:space-evenly;
+          justify-content:space-around;
           align-items:flex-end;
           page-break-inside:avoid;
         }
         .firma-bloque{
           text-align:center;
-          width:35%;
+          width:28%;
         }
         .firma-linea{
           border-top:1.2px solid #000;
@@ -1895,6 +1756,11 @@
       </tr></thead><tbody>${filas}</tbody></table>
 
       <div class="firmas">
+        <div class="firma-bloque">
+          <div class="firma-linea"></div>
+          <div class="firma-rol">AUTORIZO</div>
+          <div class="firma-nombre">C. GRACIELA NAOMI GONZALES MOLINA</div>
+        </div>
         <div class="firma-bloque">
           <div class="firma-linea"></div>
           <div class="firma-rol">ELABORÓ</div>
@@ -1972,21 +1838,6 @@
     }
   });
 
-  // ─── THEME SWITCHER ───
-  (function() {
-    const savedTheme = localStorage.getItem('placas_tema') || 'cyber';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.theme === savedTheme);
-      btn.addEventListener('click', function() {
-        const t = this.dataset.theme;
-        document.documentElement.setAttribute('data-theme', t);
-        localStorage.setItem('placas_tema', t);
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-  })();
 </script>
 </body>
 </html>
